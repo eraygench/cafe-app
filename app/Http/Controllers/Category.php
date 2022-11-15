@@ -16,26 +16,24 @@ class Category extends Controller
      */
     public function index()
     {
-        return Inertia::render('Admin/Categories/Index', [
-            'categories' => \App\Models\Category::query()
+        return Inertia::render('Admin/Custom/Index', [
+            'data' => \App\Models\Category::query()
                 ->where('organization_id', '=', Auth::user()->organization_id)
                 ->when(request('search'), function($query, $search) {
                     $query->where('name', 'like', "%{$search}%");
                 })
                 ->paginate(4)
                 ->withQueryString()
-                ->through(fn($category) => [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    /*'can' => [
-                        'edit' => Auth::user()->can('edit', $user),
-                        'delete' => Auth::user()->can('delete', $user)
-                    ]*/
+                ->through(fn($item) => [
+                    'id' => $item->id,
+                    'name' => $item->name
                 ]),
             'filter' => request('search'),
-            /*'can' => [
-                'createUser' => Auth::user()->can('create', User::class)
-            ]*/
+            'header' => 'Categories',
+            'route' => 'categories',
+            'columns' => [
+                'name' => 'Name'
+            ]
         ]);
     }
 
@@ -46,7 +44,27 @@ class Category extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Categories/Create');
+        return Inertia::render('Admin/Custom/Create', [
+            'route' => 'categories',
+            'fields' => [
+                [
+                    'name' => 'name',
+                    'label' => 'Name'
+                ],
+                [
+                    'name' => 'active',
+                    'label' => 'Active',
+                    'type' => 'checkbox',
+                    'value' => true
+                ],
+                [
+                    'name' => 'show_in_menu',
+                    'label' => 'Show In Menu',
+                    'type' => 'checkbox',
+                    'value' => true
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -57,12 +75,12 @@ class Category extends Controller
      */
     public function store(Request $request)
     {
-        $category = $request->validate([
+        $input = $request->validate([
             'name' => ['required', 'max:100'],
             'active' => ['boolean', 'required'],
             'show_in_menu' => ['boolean', 'required']
         ]);
-        \App\Models\Category::create($category);
+        \App\Models\Category::create($input);
 
         return Redirect::route('categories.index')->with(['message' => 'New category successfully created']);
     }
@@ -82,11 +100,37 @@ class Category extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Inertia\Response
      */
     public function edit($id)
     {
-        //
+        $record = \App\Models\Category::find($id);
+        if(!$record)
+            return Redirect::route('categories.index');
+
+        return Inertia::render('Admin/Custom/Create', [
+            'id' => $record->id,
+            'route' => 'categories',
+            'fields' => [
+                [
+                    'name' => 'name',
+                    'label' => 'Name',
+                    'value' => $record->name
+                ],
+                [
+                    'name' => 'active',
+                    'label' => 'Active',
+                    'type' => 'checkbox',
+                    'value' => $record->active
+                ],
+                [
+                    'name' => 'show_in_menu',
+                    'label' => 'Show In Menu',
+                    'type' => 'checkbox',
+                    'value' => $record->show_in_menu
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -94,21 +138,31 @@ class Category extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id)
     {
-        //
+        $record = \App\Models\Category::find($id);
+        if(!$record)
+            return Redirect::route('categories.index');
+
+        $record->update($request->all());
+        return Redirect::route('categories.index')->with(['message' => 'Category successfully updated']);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {
-        //
+        $record = \App\Models\Category::find($id);
+        if(!$record)
+            return Redirect::route('categories.index');
+
+        $record->delete();
+        return Redirect::route('categories.index')->with(['message' => 'Category successfully deleted']);
     }
 }

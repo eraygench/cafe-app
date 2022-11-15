@@ -17,25 +17,23 @@ class Organization extends Controller
      */
     public function index()
     {
-        return Inertia::render('Admin/Organizations/Index', [
-            'organizations' => \App\Models\Organization::query()
+        return Inertia::render('Admin/Custom/Index', [
+            'data' => \App\Models\Organization::query()
                 ->when(request('search'), function($query, $search) {
                     $query->where('name', 'like', "%{$search}%");
                 })
                 ->paginate(4)
                 ->withQueryString()
-                ->through(fn($organization) => [
-                    'id' => $organization->id,
-                    'name' => $organization->name,
-                    /*'can' => [
-                        'edit' => Auth::user()->can('edit', $user),
-                        'delete' => Auth::user()->can('delete', $user)
-                    ]*/
+                ->through(fn($item) => [
+                    'id' => $item->id,
+                    'name' => $item->name
                 ]),
             'filter' => request('search'),
-            /*'can' => [
-                'createUser' => Auth::user()->can('create', User::class)
-            ]*/
+            'header' => 'Organizations',
+            'route' => 'organizations',
+            'columns' => [
+                'name' => 'Name'
+            ]
         ]);
     }
 
@@ -46,7 +44,21 @@ class Organization extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Organizations/Create');
+        return Inertia::render('Admin/Custom/Create', [
+            'route' => 'organizations',
+            'fields' => [
+                [
+                    'name' => 'name',
+                    'label' => 'Name'
+                ],
+                [
+                    'name' => 'active',
+                    'label' => 'Active',
+                    'type' => 'checkbox',
+                    'value' => true
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -57,12 +69,12 @@ class Organization extends Controller
      */
     public function store(Request $request)
     {
-        $organization = $request->validate([
+        $input = $request->validate([
             'name' => ['required', 'max:50'],
             'active' => ['boolean', 'required'],
             'show_menu' => ['boolean', 'required']
         ]);
-        \App\Models\Organization::create($organization);
+        \App\Models\Organization::create($input);
 
         return Redirect::route('organizations.index')->with(['message' => 'New organization successfully created']);
     }
@@ -86,12 +98,26 @@ class Organization extends Controller
      */
     public function edit($id)
     {
-        $organization = \App\Models\Organization::find($id);
-        if(!$organization)
+        $record = \App\Models\Organization::find($id);
+        if(!$record)
             return Redirect::route('organizations.index');
 
-        return Inertia::render('Admin/Organizations/Create', [
-            'organization' => $organization->only(['id', 'name', 'active', 'show_menu'])
+        return Inertia::render('Admin/Custom/Create', [
+            'id' => $record->id,
+            'route' => 'organizations',
+            'fields' => [
+                [
+                    'name' => 'name',
+                    'label' => 'Name',
+                    'value' => $record->name
+                ],
+                [
+                    'name' => 'active',
+                    'label' => 'Active',
+                    'type' => 'checkbox',
+                    'value' => $record->active
+                ]
+            ]
         ]);
     }
 
@@ -104,11 +130,11 @@ class Organization extends Controller
      */
     public function update(Request $request, $id)
     {
-        $organization = \App\Models\Organization::find($id);
-        if(!$organization)
+        $record = \App\Models\Organization::find($id);
+        if(!$record)
             return Redirect::route('organizations.index');
 
-        $organization->update($request->except(['id']));
+        $record->update($request->all());
         return Redirect::route('organizations.index')->with(['message' => 'Organization successfully updated']);
     }
 
@@ -120,11 +146,11 @@ class Organization extends Controller
      */
     public function destroy($id)
     {
-        $organization = \App\Models\Organization::find($id);
-        if(!$organization)
+        $record = \App\Models\Organization::find($id);
+        if(!$record)
             return Redirect::route('organizations.index');
 
-        $organization->delete();
-        return Redirect::route('organizations.index')->with(['message' => 'New organization successfully deleted']);
+        $record->delete();
+        return Redirect::route('organizations.index')->with(['message' => 'Organization successfully deleted']);
     }
 }

@@ -5,8 +5,8 @@
                    :href="link.url"
                    v-html="link.label"
                    v-bind:key="link.label"
-                   class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-teal-400 hover:text-white"
-                   :class="{'text-gray-500 bg-gray-300': !link.url, '!text-white !bg-teal-400': link.active}"></Component>
+                   class="px-4 py-2 text-gray-700 rounded-md hover:bg-teal-400 hover:text-white"
+                   :class="{'text-gray-500 bg-gray-100': !link.url, '!text-white !bg-teal-400': link.active}"></Component>
     </div>
 </template>
 

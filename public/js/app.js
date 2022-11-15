@@ -401,7 +401,7 @@ var render = function () {
               _c(
                 "Link",
                 {
-                  class: { "text-indigo-600": _vm.$page.url === "/" },
+                  class: { "text-orange-600": _vm.$page.url === "/" },
                   attrs: { href: "/" },
                 },
                 [_vm._v("Home")]
@@ -585,77 +585,23 @@ render._withStripped = true
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 var map = {
-	"./Admin/Categories/Create": [
-		"./resources/js/Pages/Admin/Categories/Create.vue",
-		"resources_js_Pages_Admin_Categories_Create_vue"
+	"./Admin/Custom/Create": [
+		"./resources/js/Pages/Admin/Custom/Create.vue",
+		"resources_js_Pages_Admin_Custom_Create_vue"
 	],
-	"./Admin/Categories/Create.vue": [
-		"./resources/js/Pages/Admin/Categories/Create.vue",
-		"resources_js_Pages_Admin_Categories_Create_vue"
+	"./Admin/Custom/Create.vue": [
+		"./resources/js/Pages/Admin/Custom/Create.vue",
+		"resources_js_Pages_Admin_Custom_Create_vue"
 	],
-	"./Admin/Categories/Index": [
-		"./resources/js/Pages/Admin/Categories/Index.vue",
+	"./Admin/Custom/Index": [
+		"./resources/js/Pages/Admin/Custom/Index.vue",
 		"/js/vendor",
-		"resources_js_Pages_Admin_Categories_Index_vue"
+		"resources_js_Pages_Admin_Custom_Index_vue"
 	],
-	"./Admin/Categories/Index.vue": [
-		"./resources/js/Pages/Admin/Categories/Index.vue",
+	"./Admin/Custom/Index.vue": [
+		"./resources/js/Pages/Admin/Custom/Index.vue",
 		"/js/vendor",
-		"resources_js_Pages_Admin_Categories_Index_vue"
-	],
-	"./Admin/Organizations/Create": [
-		"./resources/js/Pages/Admin/Organizations/Create.vue",
-		"resources_js_Pages_Admin_Organizations_Create_vue"
-	],
-	"./Admin/Organizations/Create.vue": [
-		"./resources/js/Pages/Admin/Organizations/Create.vue",
-		"resources_js_Pages_Admin_Organizations_Create_vue"
-	],
-	"./Admin/Organizations/Index": [
-		"./resources/js/Pages/Admin/Organizations/Index.vue",
-		"/js/vendor",
-		"resources_js_Pages_Admin_Organizations_Index_vue"
-	],
-	"./Admin/Organizations/Index.vue": [
-		"./resources/js/Pages/Admin/Organizations/Index.vue",
-		"/js/vendor",
-		"resources_js_Pages_Admin_Organizations_Index_vue"
-	],
-	"./Admin/Products/Create": [
-		"./resources/js/Pages/Admin/Products/Create.vue",
-		"resources_js_Pages_Admin_Products_Create_vue"
-	],
-	"./Admin/Products/Create.vue": [
-		"./resources/js/Pages/Admin/Products/Create.vue",
-		"resources_js_Pages_Admin_Products_Create_vue"
-	],
-	"./Admin/Products/Index": [
-		"./resources/js/Pages/Admin/Products/Index.vue",
-		"/js/vendor",
-		"resources_js_Pages_Admin_Products_Index_vue"
-	],
-	"./Admin/Products/Index.vue": [
-		"./resources/js/Pages/Admin/Products/Index.vue",
-		"/js/vendor",
-		"resources_js_Pages_Admin_Products_Index_vue"
-	],
-	"./Admin/Users/Create": [
-		"./resources/js/Pages/Admin/Users/Create.vue",
-		"resources_js_Pages_Admin_Users_Create_vue"
-	],
-	"./Admin/Users/Create.vue": [
-		"./resources/js/Pages/Admin/Users/Create.vue",
-		"resources_js_Pages_Admin_Users_Create_vue"
-	],
-	"./Admin/Users/Index": [
-		"./resources/js/Pages/Admin/Users/Index.vue",
-		"/js/vendor",
-		"resources_js_Pages_Admin_Users_Index_vue"
-	],
-	"./Admin/Users/Index.vue": [
-		"./resources/js/Pages/Admin/Users/Index.vue",
-		"/js/vendor",
-		"resources_js_Pages_Admin_Users_Index_vue"
+		"resources_js_Pages_Admin_Custom_Index_vue"
 	],
 	"./Auth/Login": [
 		"./resources/js/Pages/Auth/Login.vue",

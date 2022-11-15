@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Home');
     });
 
-    Route::resource('users', \App\Http\Controllers\Product::class)/*->can('isAdmin', 'App\Models\User')*/->withTrashed();
+    Route::resource('users', \App\Http\Controllers\User::class)/*->can('isAdmin', 'App\Models\User')*/->withTrashed();
 
     Route::resource('organizations', \App\Http\Controllers\Organization::class)/*->can('isAdmin', 'App\Models\User')*/->withTrashed();
 

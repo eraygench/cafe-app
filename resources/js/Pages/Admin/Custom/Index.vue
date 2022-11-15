@@ -1,9 +1,7 @@
 <template>
     <div>
         <Head title="Organizations" />
-        <h1 class="text-3xl py-4 border-b mb-10">
-            Organizations
-        </h1>
+        <h1 class="text-3xl py-4 border-b mb-10" v-text="header"/>
 
         <div class="mb-4 flex justify-between items-center">
             <div class="flex-1 pr-4">
@@ -26,7 +24,7 @@
             <div>
                 <div class="shadow rounded-lg flex">
                     <div class="relative">
-                        <Link href="/organizations/create"
+                        <Link :href="'/' + route + '/create'"
                               as="button"
                               class="border border-green-500 bg-green-500 text-base text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-green-600 focus:outline-none focus:shadow-outline"
                         >
@@ -47,20 +45,20 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="organization in organizations.data" :key="organization.id">
+                    <tr v-for="item in data.data" :key="item.id">
                         <td v-for="heading in headings" class="border-dashed border-t border-gray-200">
-                            <span class="text-gray-700 px-6 py-2 flex items-center" v-text="organization[heading.key]"></span>
+                            <span class="text-gray-700 px-6 py-2 flex items-center" v-text="item[heading.key]"></span>
                         </td>
                         <td class="border-dashed border-t border-gray-200">
                             <Link
-                                :href="'/organizations/' + organization.id + '/edit'"
+                                :href="'/' + route + '/' + item.id + '/edit'"
                                 as="button"
                                 class="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline"
                             >
                                 Edit
                             </Link>
                             <button
-                                @click="deleteItem(organization.id)"
+                                @click="deleteItem(item.id)"
                                 type="button"
                                 class="border border-red-500 bg-red-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline"
                             >
@@ -71,7 +69,7 @@
                 </tbody>
             </table>
         </div>
-        <Pagination class="font-sans flex justify-end space-x-1 mt-8 select-none" :links="organizations.links" />
+        <Pagination class="font-sans flex justify-end space-x-1 mt-8 select-none" :links="data.links" />
     </div>
 </template>
 
@@ -82,19 +80,17 @@ import debounce from "lodash/debounce";
 export default {
     components: {Pagination},
     props: {
-        organizations: Object,
+        data: Object,
         filter: String,
-        can: Object
+        can: Object,
+        header: String,
+        route: String,
+        columns: Object
     },
     data() {
         return {
             search: this.filter,
-            headings: [
-                {
-                    key: "name",
-                    value: "Name"
-                }
-            ]
+            headings: Object.keys(this.columns).map(key => ({"key": key, "value": this.columns[key]}))
         }
     },
     methods: {
@@ -109,14 +105,14 @@ export default {
                 confirmButtonText: 'Yes, delete it!'
             }).then(({isConfirmed}) => {
                 if(isConfirmed)
-                    Inertia.delete('/organizations/' + id, {}, {preserveState: true, replace: true, preserveScroll: true});
+                    Inertia.delete('/'+ this.$props.route + '/' + id, {}, {preserveState: true, replace: true, preserveScroll: true});
             })
         }
     },
     watch: {
         search: {
             handler: debounce(value => {
-                Inertia.get('/organizations', {search: value}, {preserveState: true, replace: true, preserveScroll: true});
+                Inertia.get('/' + this.$props.route, {search: value}, {preserveState: true, replace: true, preserveScroll: true});
             }, 300),
             deep: true
         }

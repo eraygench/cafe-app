@@ -2,7 +2,7 @@
     <header class="text-gray-600 body-font border-b-gray-600 border-b">
         <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
             <nav class="flex lg:w-2/5 flex-wrap items-center text-base md:ml-auto gap-x-5">
-                <Link href="/" :class="{ 'text-indigo-600': $page.url === '/' }">Home</Link>
+                <Link href="/" :class="{ 'text-orange-600': $page.url === '/' }">Home</Link>
                 <Link href="/sales" v-if="!$page.props.auth.user.is_admin && !$page.props.auth.user.organization_id" :class="{ 'text-orange-600': $page.url.startsWith('/sales') }">Sales</Link>
                 <Link href="/users" v-if="$page.props.auth.user.is_admin && !$page.props.auth.user.organization_id" :class="{ 'text-orange-600': $page.url.startsWith('/users') }">Users</Link>
                 <Link href="/organizations" v-if="$page.props.auth.user.is_admin && !$page.props.auth.user.organization_id" :class="{ 'text-orange-600': $page.url.startsWith('/organizations') }">Organizations</Link>
