@@ -17,6 +17,7 @@ return new class extends Migration
 
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+            $table->uuid();
             $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
             $table->string('name');

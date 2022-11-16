@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Organization extends Model
 {
@@ -33,6 +34,14 @@ class Organization extends Model
         'active' => 'boolean',
         'show_menu' => 'boolean'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($organization) {
+            empty($organization->uuid) && $organization->uuid = (string)Str::uuid();
+        });
+    }
 
     public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

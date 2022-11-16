@@ -46,6 +46,7 @@ class Category extends Model
         parent::boot();
         self::creating(function ($category) {
             $category->organization_id = Auth::user()->organization_id;
+            empty($category->uuid) && $category->uuid = (string)Str::uuid();
             //$category->slug = Str::slug($category->name);
         });
     }

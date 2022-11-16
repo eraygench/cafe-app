@@ -22,14 +22,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   components: {
     Nav: _Nav__WEBPACK_IMPORTED_MODULE_0__["default"]
+  },
+  updated: function updated() {
+    var _this = this;
+    if (this.$page.props.flash.message) {
+      this.$swal({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        showCloseButton: true,
+        timer: 3000,
+        timerProgressBar: true,
+        title: this.$page.props.flash.message,
+        icon: this.$page.props.flash.icon,
+        didOpen: function didOpen(toast) {
+          toast.addEventListener('mouseenter', _this.$swal.stopTimer);
+          toast.addEventListener('mouseleave', _this.$swal.resumeTimer);
+        }
+      });
+    }
   }
 });
 
@@ -336,14 +352,6 @@ var render = function () {
     "main",
     [
       _c("Nav"),
-      _vm._v(" "),
-      _vm.$page.props.flash.message
-        ? _c("div", { staticClass: "alert" }, [
-            _vm._v(
-              "\n        " + _vm._s(_vm.$page.props.flash.message) + "\n    "
-            ),
-          ])
-        : _vm._e(),
       _vm._v(" "),
       _c("section", { staticClass: "text-gray-600 body-font" }, [
         _c(

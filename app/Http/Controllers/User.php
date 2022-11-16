@@ -95,7 +95,7 @@ class User extends Controller
         $input["password"] = Hash::make($input["password"]);
         \App\Models\User::create($input);
 
-        return Redirect::route('users.index')->with(['message' => 'New user successfully created']);
+        return Redirect::route('users.index')->with(['message' => 'New user successfully created', 'icon' => 'success']);
     }
 
     /**
@@ -165,7 +165,7 @@ class User extends Controller
             return Redirect::route('users.index');
 
         $record->update($request->all());
-        return Redirect::route('users.index')->with(['message' => 'User successfully updated']);
+        return Redirect::route('users.index')->with(['message' => 'User successfully updated', 'icon' => 'success']);
     }
 
     /**
@@ -181,6 +181,6 @@ class User extends Controller
             return Redirect::route('users.index');
 
         $record->delete();
-        return Redirect::route('users.index')->with(['message' => 'User successfully deleted']);
+        return Redirect::route('users.index')->with(['message' => 'User successfully deleted', 'icon' => 'success']);
     }
 }

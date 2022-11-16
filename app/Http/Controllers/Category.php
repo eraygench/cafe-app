@@ -82,7 +82,7 @@ class Category extends Controller
         ]);
         \App\Models\Category::create($input);
 
-        return Redirect::route('categories.index')->with(['message' => 'New category successfully created']);
+        return Redirect::route('categories.index')->with(['message' => 'New category successfully created', 'icon' => 'success']);
     }
 
     /**
@@ -147,7 +147,7 @@ class Category extends Controller
             return Redirect::route('categories.index');
 
         $record->update($request->all());
-        return Redirect::route('categories.index')->with(['message' => 'Category successfully updated']);
+        return Redirect::route('categories.index')->with(['message' => 'Category successfully updated', 'icon' => 'success']);
     }
 
     /**
@@ -163,6 +163,6 @@ class Category extends Controller
             return Redirect::route('categories.index');
 
         $record->delete();
-        return Redirect::route('categories.index')->with(['message' => 'Category successfully deleted']);
+        return Redirect::route('categories.index')->with(['message' => 'Category successfully deleted', 'icon' => 'success']);
     }
 }

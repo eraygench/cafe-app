@@ -27,6 +27,7 @@ class Product extends Controller
                 ->through(fn($item) => [
                     'id' => $item->id,
                     'name' => $item->name,
+                    'category_name' => $item->category?->name,
                     'price' => $item->price
                 ]),
             'filter' => request('search'),
@@ -34,6 +35,7 @@ class Product extends Controller
             'route' => 'products',
             'columns' => [
                 'name' => 'Name',
+                'category_name' => 'Category',
                 'price' => 'Price'
             ]
         ]);
@@ -91,7 +93,7 @@ class Product extends Controller
         ]);
         \App\Models\Product::create($input);
 
-        return Redirect::route('products.index')->with(['message' => 'New product successfully created']);
+        return Redirect::route('products.index')->with(['message' => 'New product successfully created', 'icon' => 'success']);
     }
 
     /**
@@ -162,7 +164,7 @@ class Product extends Controller
             return Redirect::route('products.index');
 
         $record->update($request->all());
-        return Redirect::route('products.index')->with(['message' => 'Product successfully updated']);
+        return Redirect::route('products.index')->with(['message' => 'Product successfully updated', 'icon' => 'success']);
     }
 
     /**
@@ -178,6 +180,6 @@ class Product extends Controller
             return Redirect::route('products.index');
 
         $record->delete();
-        return Redirect::route('products.index')->with(['message' => 'Product successfully deleted']);
+        return Redirect::route('products.index')->with(['message' => 'Product successfully deleted', 'icon' => 'success']);
     }
 }

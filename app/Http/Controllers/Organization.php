@@ -71,12 +71,11 @@ class Organization extends Controller
     {
         $input = $request->validate([
             'name' => ['required', 'max:50'],
-            'active' => ['boolean', 'required'],
-            'show_menu' => ['boolean', 'required']
+            'active' => ['boolean', 'required']
         ]);
         \App\Models\Organization::create($input);
 
-        return Redirect::route('organizations.index')->with(['message' => 'New organization successfully created']);
+        return Redirect::route('organizations.index')->with(['message' => 'New organization successfully created', 'icon' => 'success']);
     }
 
     /**
@@ -135,7 +134,7 @@ class Organization extends Controller
             return Redirect::route('organizations.index');
 
         $record->update($request->all());
-        return Redirect::route('organizations.index')->with(['message' => 'Organization successfully updated']);
+        return Redirect::route('organizations.index')->with(['message' => 'Organization successfully updated', 'icon' => 'success']);
     }
 
     /**
@@ -151,6 +150,6 @@ class Organization extends Controller
             return Redirect::route('organizations.index');
 
         $record->delete();
-        return Redirect::route('organizations.index')->with(['message' => 'Organization successfully deleted']);
+        return Redirect::route('organizations.index')->with(['message' => 'Organization successfully deleted', 'icon' => 'success']);
     }
 }

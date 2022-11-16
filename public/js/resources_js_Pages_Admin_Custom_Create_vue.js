@@ -30,12 +30,53 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: {
     fields: Array,
     route: String,
-    id: Number
+    id: Number,
+    items: Object
   },
   data: function data() {
     return {
@@ -135,6 +176,7 @@ var render = function () {
   return _c(
     "form",
     {
+      staticClass: "mx-auto w-full max-w-[550px] flex flex-col gap-y-4",
       on: {
         submit: function ($event) {
           $event.preventDefault()
@@ -150,11 +192,13 @@ var render = function () {
       _vm._l(_vm.fields, function (field) {
         return _c("div", [
           _c("label", {
+            staticClass: "mb-1 block text-base font-medium text-[#07074D]",
             attrs: { for: field.name },
             domProps: { textContent: _vm._s(field.label) },
           }),
           _vm._v(" "),
-          (field.type ? field.type : "text") === "checkbox"
+          (field.type ? field.type : "text") === "checkbox" &&
+          !["radio", "select"].includes(field.type)
             ? _c("input", {
                 directives: [
                   {
@@ -164,7 +208,16 @@ var render = function () {
                     expression: "form[field.name]",
                   },
                 ],
-                attrs: { id: field.name, type: "checkbox" },
+                class: {
+                  "w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md":
+                    !["radio", "checkbox"].includes(field.type),
+                  "h-5 w-5": ["radio", "checkbox"].includes(field.type),
+                },
+                attrs: {
+                  id: field.name,
+                  placeholder: field.placeholder,
+                  type: "checkbox",
+                },
                 domProps: {
                   checked: Array.isArray(_vm.form[field.name])
                     ? _vm._i(_vm.form[field.name], null) > -1
@@ -195,7 +248,8 @@ var render = function () {
                   },
                 },
               })
-            : (field.type ? field.type : "text") === "radio"
+            : (field.type ? field.type : "text") === "radio" &&
+              !["radio", "select"].includes(field.type)
             ? _c("input", {
                 directives: [
                   {
@@ -205,7 +259,16 @@ var render = function () {
                     expression: "form[field.name]",
                   },
                 ],
-                attrs: { id: field.name, type: "radio" },
+                class: {
+                  "w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md":
+                    !["radio", "checkbox"].includes(field.type),
+                  "h-5 w-5": ["radio", "checkbox"].includes(field.type),
+                },
+                attrs: {
+                  id: field.name,
+                  placeholder: field.placeholder,
+                  type: "radio",
+                },
                 domProps: { checked: _vm._q(_vm.form[field.name], null) },
                 on: {
                   change: function ($event) {
@@ -213,7 +276,8 @@ var render = function () {
                   },
                 },
               })
-            : _c("input", {
+            : !["radio", "select"].includes(field.type)
+            ? _c("input", {
                 directives: [
                   {
                     name: "model",
@@ -222,8 +286,14 @@ var render = function () {
                     expression: "form[field.name]",
                   },
                 ],
+                class: {
+                  "w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md":
+                    !["radio", "checkbox"].includes(field.type),
+                  "h-5 w-5": ["radio", "checkbox"].includes(field.type),
+                },
                 attrs: {
                   id: field.name,
+                  placeholder: field.placeholder,
                   type: field.type ? field.type : "text",
                 },
                 domProps: { value: _vm.form[field.name] },
@@ -235,21 +305,123 @@ var render = function () {
                     _vm.$set(_vm.form, field.name, $event.target.value)
                   },
                 },
-              }),
+              })
+            : _vm._e(),
+          _vm._v(" "),
+          field.type === "select"
+            ? _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form[field.name],
+                      expression: "form[field.name]",
+                    },
+                  ],
+                  staticClass:
+                    "w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md",
+                  attrs: { id: field.name },
+                  on: {
+                    change: function ($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function (o) {
+                          return o.selected
+                        })
+                        .map(function (o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.$set(
+                        _vm.form,
+                        field.name,
+                        $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      )
+                    },
+                  },
+                },
+                _vm._l(Object.keys(field.items), function (itemKey) {
+                  return _c("option", {
+                    key: itemKey,
+                    domProps: {
+                      value: itemKey,
+                      textContent: _vm._s(field.items[itemKey]),
+                    },
+                  })
+                }),
+                0
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          field.type === "radio"
+            ? _c(
+                "div",
+                { staticClass: "flex items-center space-x-6" },
+                _vm._l(Object.keys(field.items), function (itemKey) {
+                  return _c("div", { staticClass: "flex items-center" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form[field.name],
+                          expression: "form[field.name]",
+                        },
+                      ],
+                      staticClass: "h-5 w-5",
+                      attrs: { type: "radio", id: field.name + "_" + itemKey },
+                      domProps: {
+                        value: field.items[itemKey],
+                        checked: _vm._q(
+                          _vm.form[field.name],
+                          field.items[itemKey]
+                        ),
+                      },
+                      on: {
+                        change: function ($event) {
+                          return _vm.$set(
+                            _vm.form,
+                            field.name,
+                            field.items[itemKey]
+                          )
+                        },
+                      },
+                    }),
+                    _vm._v(" "),
+                    _c("label", {
+                      staticClass: "pl-3 text-base font-medium text-[#07074D]",
+                      attrs: { for: field.name + "_" + itemKey },
+                      domProps: { textContent: _vm._s(field.items[itemKey]) },
+                    }),
+                  ])
+                }),
+                0
+              )
+            : _vm._e(),
           _vm._v(" "),
           _vm.form.errors[field.name]
-            ? _c("div", [_vm._v(_vm._s(_vm.form.errors[field.name]))])
+            ? _c("p", {
+                staticClass: "text-xs text-red-500 mt-3",
+                domProps: { textContent: _vm._s(_vm.form.errors[field.name]) },
+              })
             : _vm._e(),
         ])
       }),
       _vm._v(" "),
-      _c("br"),
-      _vm._v(" "),
-      _c(
-        "button",
-        { attrs: { type: "submit", disabled: _vm.form.processing } },
-        [_vm._v("Save")]
-      ),
+      _c("div", [
+        _c(
+          "button",
+          {
+            staticClass:
+              "hover:shadow-form rounded-md bg-[#6A64F1] py-2 px-6 text-center text-base font-semibold text-white outline-none",
+            attrs: { type: "submit", disabled: _vm.form.processing },
+          },
+          [_vm._v("\n            Save\n        ")]
+        ),
+      ]),
     ],
     2
   )

@@ -1,16 +1,56 @@
 <template>
-    <form @submit.prevent="id ? form.put('/' + route + '/' + id) : form.post('/' + route)">
+    <form @submit.prevent="id ? form.put('/' + route + '/' + id) : form.post('/' + route)" class="mx-auto w-full max-w-[550px] flex flex-col gap-y-4">
         <Head :title="form.name ? form.name : 'New'" />
 
         <div v-for="field in fields">
-            <label :for="field.name" v-text="field.label" />
-            <input :id="field.name" v-model="form[field.name]" :type="field.type ? field.type : 'text'" />
-            <div v-if="form.errors[field.name]">{{ form.errors[field.name] }}</div>
+            <label
+                :for="field.name"
+                v-text="field.label"
+                class="mb-1 block text-base font-medium text-[#07074D]"
+            />
+            <input
+                v-if="!['radio','select'].includes(field.type)"
+                :type="field.type ? field.type : 'text'"
+                :id="field.name"
+                v-model="form[field.name]"
+                :placeholder="field.placeholder"
+                :class="{'w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md': !['radio','checkbox'].includes(field.type), 'h-5 w-5': ['radio','checkbox'].includes(field.type)}"
+            />
+            <select
+                v-if="field.type === 'select'"
+                :id="field.name"
+                v-model="form[field.name]"
+                class="w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
+            >
+                <option v-for="itemKey in Object.keys(field.items)" :value="itemKey" :key="itemKey" v-text="field.items[itemKey]" />
+            </select>
+            <div v-if="field.type === 'radio'" class="flex items-center space-x-6">
+                <div v-for="itemKey in Object.keys(field.items)" class="flex items-center">
+                    <input
+                        type="radio"
+                        :id="field.name + '_' + itemKey"
+                        v-model="form[field.name]"
+                        :value="field.items[itemKey]"
+                        class="h-5 w-5"
+                    />
+                    <label
+                        :for="field.name + '_' + itemKey"
+                        v-text="field.items[itemKey]"
+                        class="pl-3 text-base font-medium text-[#07074D]"
+                    />
+                </div>
+            </div>
+            <p v-if="form.errors[field.name]" class="text-xs text-red-500 mt-3" v-text="form.errors[field.name]" />
         </div>
 
-        <br>
-
-        <button type="submit" :disabled="form.processing">Save</button>
+        <div>
+            <button
+                type="submit" :disabled="form.processing"
+                class="hover:shadow-form rounded-md bg-[#6A64F1] py-2 px-6 text-center text-base font-semibold text-white outline-none"
+            >
+                Save
+            </button>
+        </div>
     </form>
 </template>
 
@@ -19,7 +59,8 @@ export default {
     props: {
         fields: Array,
         route: String,
-        id: Number
+        id: Number,
+        items: Object
     },
     data() {
         return {
