@@ -8,6 +8,7 @@
                 <Link href="/organizations" v-if="$page.props.auth.user.is_admin && !$page.props.auth.user.organization_id" :class="{ 'text-orange-600': $page.url.startsWith('/organizations') }">Organizations</Link>
                 <Link href="/products" v-if="!$page.props.auth.user.is_admin && $page.props.auth.user.organization_id" :class="{ 'text-orange-600': $page.url.startsWith('/products') }">Products</Link>
                 <Link href="/categories" v-if="!$page.props.auth.user.is_admin && $page.props.auth.user.organization_id" :class="{ 'text-orange-600': $page.url.startsWith('/categories') }">Categories</Link>
+                <Link href="/sections" v-if="!$page.props.auth.user.is_admin && $page.props.auth.user.organization_id" :class="{ 'text-orange-600': $page.url.startsWith('/sections') }">Sections</Link>
                 <Link href="/plan" v-if="!$page.props.auth.user.is_admin && $page.props.auth.user.organization_id" :class="{ 'text-orange-600': $page.component.startsWith('Admin/Plan') }">Desk Plan</Link>
             </nav>
             <a class="flex order-first lg:order-none lg:w-1/5 title-font font-medium items-center text-gray-900 lg:items-center lg:justify-center mb-4 md:mb-0">

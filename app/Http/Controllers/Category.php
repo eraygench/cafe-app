@@ -22,18 +22,26 @@ class Category extends Controller
                 ->when(request('search'), function($query, $search) {
                     $query->where('name', 'like', "%{$search}%");
                 })
-                ->paginate(4)
+                ->paginate(10)
                 ->withQueryString()
                 ->through(fn($item) => [
                     'id' => $item->id,
-                    'name' => $item->name
+                    'name' => $item->name,
+                    'active' => $item->active,
+                    'routes' => [
+                        'activate' => route('categories.update', [$item->id]),
+                        'edit' => route('categories.edit', [$item->id]),
+                        'delete' => route('categories.destroy', [$item->id]),
+                    ]
                 ]),
             'filter' => request('search'),
             'header' => 'Categories',
-            'route' => 'categories',
             'columns' => [
                 'name' => 'Name'
-            ]
+            ],
+            'routes' => [
+                'create' => route('categories.create')
+            ],
         ]);
     }
 
@@ -46,6 +54,7 @@ class Category extends Controller
     {
         return Inertia::render('Admin/Custom/Create', [
             'route' => 'categories',
+            'header' => 'New Category',
             'fields' => [
                 [
                     'name' => 'name',
@@ -106,7 +115,7 @@ class Category extends Controller
     {
         $record = \App\Models\Category::find($id);
         if(!$record)
-            return Redirect::route('categories.index');
+            return Redirect::route('categories.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
@@ -144,7 +153,7 @@ class Category extends Controller
     {
         $record = \App\Models\Category::find($id);
         if(!$record)
-            return Redirect::route('categories.index');
+            return Redirect::route('categories.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $record->update($request->all());
         return Redirect::route('categories.index')->with(['message' => 'Category successfully updated', 'icon' => 'success']);
@@ -160,7 +169,7 @@ class Category extends Controller
     {
         $record = \App\Models\Category::find($id);
         if(!$record)
-            return Redirect::route('categories.index');
+            return Redirect::route('categories.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $record->delete();
         return Redirect::route('categories.index')->with(['message' => 'Category successfully deleted', 'icon' => 'success']);

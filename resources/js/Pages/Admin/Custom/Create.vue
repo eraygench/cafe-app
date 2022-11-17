@@ -2,6 +2,7 @@
     <form @submit.prevent="id ? form.put('/' + route + '/' + id) : form.post('/' + route)" class="mx-auto w-full max-w-[550px] flex flex-col gap-y-4">
         <Head :title="form.name ? form.name : 'New'" />
 
+        <h1 v-if="header" class="text-3xl py-4 text-center" v-text="header"/>
         <div v-for="field in fields">
             <label
                 :for="field.name"
@@ -43,13 +44,19 @@
             <p v-if="form.errors[field.name]" class="text-xs text-red-500 mt-3" v-text="form.errors[field.name]" />
         </div>
 
-        <div>
+        <div class="flex gap-x-4">
             <button
                 type="submit" :disabled="form.processing"
                 class="hover:shadow-form rounded-md bg-[#6A64F1] py-2 px-6 text-center text-base font-semibold text-white outline-none"
             >
                 Save
             </button>
+            <Link
+                :href="'/' + route" as="button"
+                class="hover:shadow-form rounded-md bg-gray-400 py-2 px-6 text-center text-base font-semibold text-white outline-none"
+            >
+                Cancel
+            </Link>
         </div>
     </form>
 </template>
@@ -57,6 +64,7 @@
 <script>
 export default {
     props: {
+        header: String,
         fields: Array,
         route: String,
         id: Number,

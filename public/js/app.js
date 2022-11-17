@@ -91,6 +91,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({});
 
@@ -485,6 +486,21 @@ var render = function () {
                       attrs: { href: "/categories" },
                     },
                     [_vm._v("Categories")]
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              !_vm.$page.props.auth.user.is_admin &&
+              _vm.$page.props.auth.user.organization_id
+                ? _c(
+                    "Link",
+                    {
+                      class: {
+                        "text-orange-600":
+                          _vm.$page.url.startsWith("/sections"),
+                      },
+                      attrs: { href: "/sections" },
+                    },
+                    [_vm._v("Sections")]
                   )
                 : _vm._e(),
               _vm._v(" "),

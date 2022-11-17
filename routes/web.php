@@ -47,6 +47,10 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('products', \App\Http\Controllers\Product::class)/*->can('isOrganizationUser', 'App\Models\User')*/->withTrashed();
 
+    Route::resource('sections', \App\Http\Controllers\Section::class)/*->can('isOrganizationUser', 'App\Models\User')*/->withTrashed();
+
+    Route::resource('sections.desks', \App\Http\Controllers\Desk::class)/*->can('isOrganizationUser', 'App\Models\User')*/->withTrashed();
+
     Route::get("plan", function () {
         return Inertia::render("Plan");
     });

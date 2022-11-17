@@ -22,22 +22,30 @@ class Product extends Controller
                 ->when(request('search'), function($query, $search) {
                     $query->where('name', 'like', "%{$search}%");
                 })
-                ->paginate(4)
+                ->paginate(10)
                 ->withQueryString()
                 ->through(fn($item) => [
                     'id' => $item->id,
                     'name' => $item->name,
                     'category_name' => $item->category?->name,
-                    'price' => $item->price
+                    'price' => $item->price,
+                    'active' => $item->active,
+                    'routes' => [
+                        'activate' => route('products.update', [$item->id]),
+                        'edit' => route('products.edit', [$item->id]),
+                        'delete' => route('products.destroy', [$item->id]),
+                    ]
                 ]),
             'filter' => request('search'),
             'header' => 'Products',
-            'route' => 'products',
             'columns' => [
                 'name' => 'Name',
                 'category_name' => 'Category',
                 'price' => 'Price'
-            ]
+            ],
+            'routes' => [
+                'create' => route('products.create')
+            ],
         ]);
     }
 
@@ -50,6 +58,7 @@ class Product extends Controller
     {
         return Inertia::render('Admin/Custom/Create', [
             'route' => 'products',
+            'header' => 'New Product',
             'fields' => [
                 [
                     'name' => 'name',
@@ -117,7 +126,7 @@ class Product extends Controller
     {
         $record = \App\Models\Product::find($id);
         if(!$record)
-            return Redirect::route('products.index');
+            return Redirect::route('products.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
@@ -161,7 +170,7 @@ class Product extends Controller
     {
         $record = \App\Models\Product::find($id);
         if(!$record)
-            return Redirect::route('products.index');
+            return Redirect::route('products.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $record->update($request->all());
         return Redirect::route('products.index')->with(['message' => 'Product successfully updated', 'icon' => 'success']);
@@ -177,7 +186,7 @@ class Product extends Controller
     {
         $record = \App\Models\Product::find($id);
         if(!$record)
-            return Redirect::route('products.index');
+            return Redirect::route('products.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $record->delete();
         return Redirect::route('products.index')->with(['message' => 'Product successfully deleted', 'icon' => 'success']);

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Desk extends Model
 {
@@ -32,6 +33,14 @@ class Desk extends Model
         'organization_id' => 'integer',
         'active' => 'boolean'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        self::creating(function ($section) {
+            $section->organization_id = Auth::user()->organization_id;
+        });
+    }
 
     public function section(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -22,18 +22,26 @@ class Organization extends Controller
                 ->when(request('search'), function($query, $search) {
                     $query->where('name', 'like', "%{$search}%");
                 })
-                ->paginate(4)
+                ->paginate(10)
                 ->withQueryString()
                 ->through(fn($item) => [
                     'id' => $item->id,
-                    'name' => $item->name
+                    'name' => $item->name,
+                    'active' => $item->active,
+                    'routes' => [
+                        'activate' => route('organizations.update', [$item->id]),
+                        'edit' => route('organizations.edit', [$item->id]),
+                        'delete' => route('organizations.destroy', [$item->id]),
+                    ]
                 ]),
             'filter' => request('search'),
             'header' => 'Organizations',
-            'route' => 'organizations',
             'columns' => [
                 'name' => 'Name'
-            ]
+            ],
+            'routes' => [
+                'create' => route('organizations.create')
+            ],
         ]);
     }
 
@@ -46,6 +54,7 @@ class Organization extends Controller
     {
         return Inertia::render('Admin/Custom/Create', [
             'route' => 'organizations',
+            'header' => 'New Organization',
             'fields' => [
                 [
                     'name' => 'name',
@@ -99,7 +108,7 @@ class Organization extends Controller
     {
         $record = \App\Models\Organization::find($id);
         if(!$record)
-            return Redirect::route('organizations.index');
+            return Redirect::route('organizations.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
@@ -131,7 +140,7 @@ class Organization extends Controller
     {
         $record = \App\Models\Organization::find($id);
         if(!$record)
-            return Redirect::route('organizations.index');
+            return Redirect::route('organizations.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $record->update($request->all());
         return Redirect::route('organizations.index')->with(['message' => 'Organization successfully updated', 'icon' => 'success']);
@@ -147,7 +156,7 @@ class Organization extends Controller
     {
         $record = \App\Models\Organization::find($id);
         if(!$record)
-            return Redirect::route('organizations.index');
+            return Redirect::route('organizations.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $record->delete();
         return Redirect::route('organizations.index')->with(['message' => 'Organization successfully deleted', 'icon' => 'success']);

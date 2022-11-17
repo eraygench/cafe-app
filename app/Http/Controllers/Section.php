@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
-class User extends Controller
+class Section extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,11 +17,11 @@ class User extends Controller
     public function index()
     {
         return Inertia::render('Admin/Custom/Index', [
-            'data' => \App\Models\User::query()
+            'data' => \App\Models\Section::query()
+                ->where('organization_id', '=', Auth::user()->organization_id)
                 ->when(request('search'), function($query, $search) {
                     $query->where('name', 'like', "%{$search}%");
                 })
-                ->where('id', '!=', Auth::user()->id)
                 ->paginate(10)
                 ->withQueryString()
                 ->through(fn($item) => [
@@ -30,26 +29,24 @@ class User extends Controller
                     'name' => $item->name,
                     'active' => $item->active,
                     'routes' => [
-                        'activate' => route('users.update', [$item->id]),
-                        'edit' => route('users.edit', [$item->id]),
-                        'delete' => route('users.destroy', [$item->id]),
+                        'activate' => route('sections.update', [$item->id]),
+                        'show' => route('sections.desks.index', [$item->id]),
+                        'edit' => route('sections.edit', [$item->id]),
+                        'delete' => route('sections.destroy', [$item->id]),
                     ]
-                    /*'can' => [
-                        'edit' => Auth::user()->can('edit', $user),
-                        'delete' => Auth::user()->can('delete', $user)
-                    ]*/
                 ]),
             'filter' => request('search'),
-            'header' => 'Users',
+            'header' => 'Sections',
+            'route' => 'sections',
             'columns' => [
                 'name' => 'Name'
             ],
             'routes' => [
-                'create' => route('users.create')
+                'create' => route('sections.create')
             ],
-            /*'can' => [
-                'createUser' => Auth::user()->can('create', User::class)
-            ]*/
+            'actions' => [
+                'show' => true
+            ]
         ]);
     }
 
@@ -61,22 +58,12 @@ class User extends Controller
     public function create()
     {
         return Inertia::render('Admin/Custom/Create', [
-            'route' => 'users',
-            'header' => 'New User',
+            'route' => 'sections',
+            'header' => 'New Section',
             'fields' => [
                 [
                     'name' => 'name',
                     'label' => 'Name'
-                ],
-                [
-                    'name' => 'email',
-                    'label' => 'Email',
-                    'type' => 'email'
-                ],
-                [
-                    'name' => 'password',
-                    'label' => 'Password',
-                    'type' => 'password'
                 ],
                 [
                     'name' => 'active',
@@ -97,14 +84,12 @@ class User extends Controller
     public function store(Request $request)
     {
         $input = $request->validate([
-            'name' => ['required', 'max:50'],
-            'email' => ['required', 'email', 'max:50', 'unique:users'],
-            'password' => ['required', 'min:4', 'max:32']
+            'name' => ['required', 'max:100'],
+            'active' => ['boolean', 'required']
         ]);
-        $input["password"] = Hash::make($input["password"]);
-        \App\Models\User::create($input);
+        \App\Models\Section::create($input);
 
-        return Redirect::route('users.index')->with(['message' => 'New user successfully created', 'icon' => 'success']);
+        return Redirect::route('sections.index')->with(['message' => 'New section successfully created', 'icon' => 'success']);
     }
 
     /**
@@ -126,29 +111,18 @@ class User extends Controller
      */
     public function edit($id)
     {
-        $record = \App\Models\User::find($id);
+        $record = \App\Models\Section::find($id);
         if(!$record)
-            return Redirect::route('users.index')->with(['message' => 'No records found', 'icon' => 'error']);
+            return Redirect::route('sections.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
-            'route' => 'users',
+            'route' => 'sections',
             'fields' => [
                 [
                     'name' => 'name',
                     'label' => 'Name',
                     'value' => $record->name
-                ],
-                [
-                    'name' => 'email',
-                    'label' => 'Email',
-                    'type' => 'email',
-                    'value' => $record->email
-                ],
-                [
-                    'name' => 'password',
-                    'label' => 'Password',
-                    'type' => 'password'
                 ],
                 [
                     'name' => 'active',
@@ -169,12 +143,12 @@ class User extends Controller
      */
     public function update(Request $request, $id)
     {
-        $record = \App\Models\User::find($id);
+        $record = \App\Models\Section::find($id);
         if(!$record)
-            return Redirect::route('users.index')->with(['message' => 'No records found', 'icon' => 'error']);
+            return Redirect::route('sections.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $record->update($request->all());
-        return Redirect::route('users.index')->with(['message' => 'User successfully updated', 'icon' => 'success']);
+        return Redirect::route('sections.index')->with(['message' => 'Section successfully updated', 'icon' => 'success']);
     }
 
     /**
@@ -185,11 +159,11 @@ class User extends Controller
      */
     public function destroy($id)
     {
-        $record = \App\Models\User::find($id);
+        $record = \App\Models\Section::find($id);
         if(!$record)
-            return Redirect::route('users.index')->with(['message' => 'No records found', 'icon' => 'error']);
+            return Redirect::route('sections.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $record->delete();
-        return Redirect::route('users.index')->with(['message' => 'User successfully deleted', 'icon' => 'success']);
+        return Redirect::route('sections.index')->with(['message' => 'Section successfully deleted', 'icon' => 'success']);
     }
 }

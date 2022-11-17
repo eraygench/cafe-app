@@ -24,7 +24,7 @@
             <div>
                 <div class="shadow rounded-lg flex">
                     <div class="relative">
-                        <Link :href="'/' + route + '/create'"
+                        <Link v-if="routes && routes.create" :href="routes.create"
                               as="button"
                               class="border border-green-500 bg-green-500 text-base text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-green-600 focus:outline-none focus:shadow-outline"
                         >
@@ -41,7 +41,7 @@
                 <tr class="text-left">
                     <th v-for="heading in headings" class="bg-gray-100 sticky top-0 border-b border-gray-200 px-6 py-2 text-gray-600 font-bold tracking-wider uppercase text-xs"
                         v-text="heading.value"></th>
-                    <th class="w-48 bg-gray-100 sticky top-0 border-b border-gray-200"></th>
+                    <th class="bg-gray-100 sticky top-0 border-b border-gray-200"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -49,21 +49,44 @@
                         <td v-for="heading in headings" class="border-dashed border-t border-gray-200">
                             <span class="text-gray-700 px-6 py-2 flex items-center" v-text="item[heading.key]"></span>
                         </td>
-                        <td class="border-dashed border-t border-gray-200">
-                            <Link
-                                :href="'/' + route + '/' + item.id + '/edit'"
-                                as="button"
-                                class="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline"
-                            >
-                                Edit
-                            </Link>
-                            <button
-                                @click="deleteItem(item.id)"
-                                type="button"
-                                class="border border-red-500 bg-red-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline"
-                            >
-                                Delete
-                            </button>
+                        <td class="border-dashed border-t border-gray-200 whitespace-nowrap w-1">
+                            <div class="fle.x gap-x-2 p-2">
+                                <Link
+                                    v-if="item.active !== undefined && item.routes && item.routes.activate"
+                                    :href="item.routes.activate"
+                                    method="PUT"
+                                    :data="{ active: !item.active }"
+                                    as="button"
+                                    :class="{ 'border-cyan-500 bg-cyan-500 hover:bg-cyan-600': !item.active, 'border-gray-400 bg-gray-400 hover:bg-gray-500': item.active }"
+                                    class="border  text-white rounded-md px-4 py-2 transition duration-500 ease select-none focus:outline-none focus:shadow-outline"
+                                >
+                                    {{ item.active ? 'Deactive' : 'Active' }}
+                                </Link>
+                                <Link
+                                    v-if="buttons.show && item.routes && item.routes.show"
+                                    :href="item.routes.show"
+                                    as="button"
+                                    class="border border-lime-500 bg-lime-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-lime-600 focus:outline-none focus:shadow-outline"
+                                >
+                                    Show
+                                </Link>
+                                <Link
+                                    v-if="buttons.edit && item.routes && item.routes.edit"
+                                    :href="item.routes.edit"
+                                    as="button"
+                                    class="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline"
+                                >
+                                    Edit
+                                </Link>
+                                <button
+                                    v-if="buttons.delete && item.routes && item.routes.delete"
+                                    @click="deleteItem(item.routes.delete)"
+                                    type="button"
+                                    class="border border-red-500 bg-red-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -84,17 +107,23 @@ export default {
         filter: String,
         can: Object,
         header: String,
-        route: String,
-        columns: Object
+        columns: Object,
+        actions: Object|Boolean,
+        routes: Object
     },
     data() {
         return {
             search: this.filter,
-            headings: Object.keys(this.columns).map(key => ({"key": key, "value": this.columns[key]}))
+            buttons: {
+                edit: ((typeof this.actions === 'object' && !Array.isArray(this.actions) ? (this.actions.edit ?? true) : this.actions) ?? true),
+                delete: ((typeof this.actions === 'object' && !Array.isArray(this.actions) ? (this.actions.delete ?? true) : this.actions) ?? true),
+                show: ((typeof this.actions === 'object' && !Array.isArray(this.actions) ? (this.actions.show ?? false) : this.actions) ?? false),
+            },
+            headings: Object.keys(this.columns).map(key => ({"key": key, "value": this.columns[key]})),
         }
     },
     methods: {
-        async deleteItem(id) {
+        async deleteItem(route) {
             this.$swal({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -105,7 +134,7 @@ export default {
                 confirmButtonText: 'Yes, delete it!'
             }).then(({isConfirmed}) => {
                 if(isConfirmed)
-                    Inertia.delete('/'+ this.$props.route + '/' + id, {}, {preserveState: true, replace: true, preserveScroll: true});
+                    Inertia.delete(route, {}, {preserveState: true, replace: true, preserveScroll: true});
             })
         }
     },
