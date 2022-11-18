@@ -17,8 +17,38 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  props: {
+    sections: Array
+  },
+  data: function data() {
+    var _this$sections;
+    return {
+      activeTab: (_this$sections = this.sections) === null || _this$sections === void 0 ? void 0 : _this$sections[0].id
+    };
+  }
+});
 
 /***/ }),
 
@@ -106,16 +136,83 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("div", [
+    _c(
+      "ul",
+      { staticClass: "flex items-center" },
+      _vm._l(_vm.sections, function (section) {
+        return _c("li", {
+          key: section.id,
+          staticClass: "cursor-pointer py-2 px-4 text-gray-500 border-b-4",
+          class: {
+            "text-green-500 border-green-500": _vm.activeTab === section.id,
+          },
+          domProps: { textContent: _vm._s(section.name) },
+          on: {
+            click: function ($event) {
+              _vm.activeTab = section.id
+            },
+          },
+        })
+      }),
+      0
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "bg-white flex" },
+      _vm._l(_vm.sections, function (section) {
+        return _c(
+          "div",
+          {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.activeTab === section.id,
+                expression: "activeTab === section.id",
+              },
+            ],
+            key: section.id,
+            staticClass: "flex flex-wrap gap-4 pt-4",
+          },
+          _vm._l(section.desks, function (desk) {
+            return _c(
+              "Link",
+              {
+                staticClass: "p-2 bg-gray-200 w-20 h-20 rounded relative",
+                class: { "bg-emerald-400 text-white": !!desk.sale },
+                attrs: { as: "button", href: desk.href },
+              },
+              [
+                _c("span", [_vm._v(_vm._s(desk.name))]),
+                _vm._v(" "),
+                desk.sale && desk.sale.details
+                  ? _c(
+                      "span",
+                      { staticClass: "absolute left-1 bottom-1 text-xs" },
+                      [
+                        _vm._v(
+                          _vm._s(
+                            desk.sale.details.reduce(function (aac, detail) {
+                              return aac + detail.quantity * detail.price
+                            }, 0)
+                          ) + "$"
+                        ),
+                      ]
+                    )
+                  : _vm._e(),
+              ]
+            )
+          }),
+          1
+        )
+      }),
+      0
+    ),
+  ])
 }
-var staticRenderFns = [
-  function () {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", [_c("h1", [_vm._v("Plan")])])
-  },
-]
+var staticRenderFns = []
 render._withStripped = true
 
 

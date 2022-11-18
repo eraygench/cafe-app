@@ -42,6 +42,17 @@ class Desk extends Model
         });
     }
 
+    public function sale(): Model|null
+    {
+        //if($this->id == 43) dd($this->hasMany(Sale::class)->firstWhere('status', '0'));
+        return $this->hasMany(Sale::class)->with('details')->firstWhere('status', '0');
+    }
+
+    public function sales(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Sale::class)->with('details');
+    }
+
     public function section(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Section::class);

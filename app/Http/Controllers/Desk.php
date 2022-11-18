@@ -103,7 +103,7 @@ class Desk extends Controller
             ->where('organization_id', '=', Auth::user()->organization_id)
             ->where('section_id', '=', $section->id)
             ->whereRaw('(name like \''.substr($section->name, 0, 1).'-%\' or name REGEXP \'[0-9]{3}\')')
-            ->orderByRaw('CONVERT(REPLACE(name,\'A-\', \'\'), int) desc')->first()?->name;
+            ->orderByRaw('CONVERT(REPLACE(name,\''.substr($section->name, 0, 1).'-\', \'\'), int) desc')->first()?->name;
 
         if($lastName)
             $lastName = intval(!is_numeric(substr($lastName, 0, 1)) ? substr($lastName, 2) : $lastName);

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class Sale extends Model
@@ -19,8 +20,8 @@ class Sale extends Model
         'organization_id',
         'user_id',
         'desk_id',
-        'total_price',
-        'status'
+        'status',
+        'details'
     ];
 
     /**
@@ -33,20 +34,21 @@ class Sale extends Model
         'organization_id' => 'integer',
         'user_id' => 'integer',
         'desk_id' => 'integer',
-        'total_amount' => 'decimal:2'
+        'details' => SaleDetail::class
     ];
 
     protected static function boot()
     {
         parent::boot();
         static::creating(function ($sale) {
+            $sale->organization_id = Auth::user()->organization_id;
             empty($sale->uuid) && $sale->uuid = (string)Str::uuid();
         });
     }
 
     public function details(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(SaleDetail::class);
+        return $this->hasMany(SaleDetail::class)->with('product');
     }
 
     public function organization(): \Illuminate\Database\Eloquent\Relations\BelongsTo

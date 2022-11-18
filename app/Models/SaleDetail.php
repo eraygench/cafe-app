@@ -34,13 +34,8 @@ class SaleDetail extends Model
         'price' => 'decimal:2',
     ];
 
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Category::class);
-    }
-
-    public function organization(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(Product::class);
     }
 }

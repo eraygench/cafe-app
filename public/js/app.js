@@ -643,6 +643,14 @@ var map = {
 		"./resources/js/Pages/Auth/Register.vue",
 		"resources_js_Pages_Auth_Register_vue"
 	],
+	"./Desk": [
+		"./resources/js/Pages/Desk.vue",
+		"resources_js_Pages_Desk_vue"
+	],
+	"./Desk.vue": [
+		"./resources/js/Pages/Desk.vue",
+		"resources_js_Pages_Desk_vue"
+	],
 	"./Home": [
 		"./resources/js/Pages/Home.vue",
 		"resources_js_Pages_Home_vue"

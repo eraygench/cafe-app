@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Desk;
+use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,8 +53,60 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('sections.desks', \App\Http\Controllers\Desk::class)/*->can('isOrganizationUser', 'App\Models\User')*/->withTrashed();
 
-    Route::get("plan", function () {
-        return Inertia::render("Plan");
+    Route::get('plan', function () {
+        return Inertia::render("Plan", [
+            'sections' => \App\Models\Section::query()
+                ->where('organization_id', '=', Auth::user()->organization_id)
+                ->where('active', '=', true)
+                ->chunkMap(fn($item) => [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'desks' => $item->desks()
+                        ->where('active', '=', true)
+                        ->get()
+                        ->map(fn(Desk $desk) => [
+                        'id' => $desk->id,
+                        'name' => $desk->name,
+                        'sale' => $desk->sale(),
+                        'href' => route('desk', [$desk->id]),
+                    ])
+                ])
+                ->filter(fn($item) => count($item["desks"]) > 0)
+        ]);
+    })->name('plan');
+
+    Route::get('plan/{desk}', function (Desk $record) {
+        /*if(!$record)
+            return Redirect::route('plan')->with(['message' => 'No records found', 'icon' => 'error']);*/
+
+        return Inertia::render("Desk", [
+            'back' => route('plan'),
+            'desk' => $record->only(['id', 'name']),
+            'activeSale' => $record->sales->firstWhere('status', '=', 0),
+            'products' => \App\Models\Product::query()
+                ->where('organization_id', '=', Auth::user()->organization_id)
+                ->where('active', '=', true)
+                ->select(['id', 'name', 'price'])->get()
+        ]);
+    })->name('desk');
+
+    Route::put('plan/{desk}', function (Request $request, Desk $record) {
+        /*if(!$record)
+            return Redirect::route('plan')->with(['message' => 'No records found', 'icon' => 'error']);*/
+
+        $sale = $record->sales()->updateOrCreate(['id' => $request->get('id')], $request->except(['details']));
+        collect($request->get('details'))->each(function($detail) use ($sale) {
+            $sale->details()->updateOrCreate(['id' => $detail['id']], $detail);
+        });
+        return Redirect::route('plan');
+    });
+
+    Route::delete('plan/{desk}', function (Request $request, Desk $record) {
+        /*if(!$record)
+            return Redirect::route('plan')->with(['message' => 'No records found', 'icon' => 'error']);*/
+
+        $record->sale()->details()->delete($request->get('detail_id')) > 0 && $record->sale()->details()->count() == 0 && $record->sale()->delete();
+        return Redirect::route('plan');
     });
 
 });
