@@ -2,7 +2,8 @@
     <div>
         <Link :href="back" as="button">Back</Link>
         <h1>{{ desk.name }}</h1>
-        <button @click="save">Save</button>
+        <button v-if="sale.details.length" @click="save">Save</button>
+        <button v-if="activeSale" @click="close">Close</button>
         <hr class="mt-4">
         <h1 class="my-2">Products</h1>
         <div class="flex gap-2">
@@ -95,13 +96,14 @@ export default {
                 (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
             );
         },
+        close() {
+            this.sale.status = "1"
+            Inertia.put('/plan/' + this.sale.desk_id, {...this.sale, status: true}, {preserveState: true, replace: true, preserveScroll: true})
+        },
         save() {
             console.log(this.sale)
             Inertia.put('/plan/' + this.sale.desk_id, this.sale, {preserveState: true, replace: true, preserveScroll: true})
         }
-    },
-    mounted() {
-        console.log(this.sale)
     }
 }
 </script>

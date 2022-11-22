@@ -71,12 +71,6 @@ class Desk extends Controller
                     'label' => 'Number of Desks',
                     'type' => 'number',
                     'value' => 1
-                ],
-                [
-                    'name' => 'desk_name',
-                    'label' => 'Desk name starts with the section letter',
-                    'type' => 'checkbox',
-                    'value' => true
                 ]
             ]
         ]);
@@ -95,25 +89,24 @@ class Desk extends Controller
             return Redirect::route('sections.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         $input = $request->validate([
-            'count' => ['required', 'numeric', 'min:1', 'max:100'],
-            'desk_name' => ['required', 'boolean']
+            'count' => ['required', 'numeric', 'min:1', 'max:100']
         ]);
 
-        $lastName = \App\Models\Desk::query()
+        $lastName = intval(\App\Models\Desk::query()
             ->where('organization_id', '=', Auth::user()->organization_id)
             ->where('section_id', '=', $section->id)
-            ->whereRaw('(name like \''.substr($section->name, 0, 1).'-%\' or name REGEXP \'[0-9]{3}\')')
-            ->orderByRaw('CONVERT(REPLACE(name,\''.substr($section->name, 0, 1).'-\', \'\'), int) desc')->first()?->name;
+            ->orderByDesc('id')
+            ->first()?->name ?? 0);
 
-        if($lastName)
+        /*if($lastName)
             $lastName = intval(!is_numeric(substr($lastName, 0, 1)) ? substr($lastName, 2) : $lastName);
         else
-            $lastName = 0;
+            $lastName = 0;*/
 
         \App\Models\Desk::factory(intval($input['count']), [
             'section_id' => $section->id
-        ])->make()->each(function ($desk) use (&$lastName, $section, $input) {
-            $desk->name = strtoupper($input['desk_name'] ? (substr($section->name, 0, 1) . '-') : '') . str_pad(++$lastName, 3, '0', STR_PAD_LEFT);
+        ])->make()->each(function ($desk) use (&$lastName) {
+            $desk->name = ++$lastName; //strtoupper($input['desk_name'] ? (substr($section->name, 0, 1) . '-') : '') . str_pad(++$lastName, 3, '0', STR_PAD_LEFT);
             $desk->save();
         });
 

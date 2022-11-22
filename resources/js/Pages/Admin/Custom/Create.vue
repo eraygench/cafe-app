@@ -23,6 +23,7 @@
                 v-model="form[field.name]"
                 class="w-full appearance-none rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
             >
+                <option v-if="field.optional" value="">None</option>
                 <option v-for="itemKey in Object.keys(field.items)" :value="itemKey" :key="itemKey" v-text="field.items[itemKey]" />
             </select>
             <div v-if="field.type === 'radio'" class="flex items-center space-x-6">
@@ -72,7 +73,7 @@ export default {
     },
     data() {
         return {
-            form: this.$inertia.form(this.fields.reduce((obj, field) => ({...obj, [field.name]: field.value}), {})),
+            form: this.$inertia.form(this.fields.reduce((obj, field) => ({...obj, [field.name]: field.value ?? ''}), {})),
         }
     }
 }
