@@ -77,6 +77,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: {
@@ -89,7 +90,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       form: this.$inertia.form(this.fields.reduce(function (obj, field) {
-        return _objectSpread(_objectSpread({}, obj), {}, _defineProperty({}, field.name, field.value));
+        var _field$value;
+        return _objectSpread(_objectSpread({}, obj), {}, _defineProperty({}, field.name, (_field$value = field.value) !== null && _field$value !== void 0 ? _field$value : ''));
       }, {}))
     };
   }
@@ -358,16 +360,22 @@ var render = function () {
                     },
                   },
                 },
-                _vm._l(Object.keys(field.items), function (itemKey) {
-                  return _c("option", {
-                    key: itemKey,
-                    domProps: {
-                      value: itemKey,
-                      textContent: _vm._s(field.items[itemKey]),
-                    },
-                  })
-                }),
-                0
+                [
+                  field.optional
+                    ? _c("option", { attrs: { value: "" } }, [_vm._v("None")])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm._l(Object.keys(field.items), function (itemKey) {
+                    return _c("option", {
+                      key: itemKey,
+                      domProps: {
+                        value: itemKey,
+                        textContent: _vm._s(field.items[itemKey]),
+                      },
+                    })
+                  }),
+                ],
+                2
               )
             : _vm._e(),
           _vm._v(" "),

@@ -11,6 +11,98 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* harmony import */ var _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @inertiajs/inertia */ "./node_modules/@inertiajs/inertia/dist/index.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -38,15 +130,83 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: {
-    sections: Array
+    sections: Array,
+    products: Array
   },
   data: function data() {
     var _this$sections;
     return {
-      activeTab: (_this$sections = this.sections) === null || _this$sections === void 0 ? void 0 : _this$sections[0].id
+      activeTab: (_this$sections = this.sections) === null || _this$sections === void 0 ? void 0 : _this$sections[0].id,
+      activeDesk: null
     };
+  },
+  methods: {
+    openDesk: function openDesk(desk, section) {
+      var _desk$sale;
+      this.activeDesk = _objectSpread(_objectSpread({}, structuredClone(desk)), {}, {
+        section_name: section.name,
+        sale: (_desk$sale = desk.sale) !== null && _desk$sale !== void 0 ? _desk$sale : {
+          desk_id: desk.id,
+          details: []
+        }
+      });
+      console.log(this.activeDesk);
+    },
+    closeDesk: function closeDesk() {
+      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put('/plan/' + this.activeDesk.sale.desk_id, _objectSpread(_objectSpread({}, this.activeDesk.sale), {}, {
+        status: true
+      }), {
+        preserveState: false,
+        replace: true,
+        preserveScroll: true
+      });
+    },
+    saveDesk: function saveDesk() {
+      console.log(this.sale);
+      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put('/plan/' + this.activeDesk.sale.desk_id, this.activeDesk.sale, {
+        preserveState: false,
+        replace: true,
+        preserveScroll: true
+      });
+    },
+    addProduct: function addProduct(product) {
+      var detail = this.activeDesk.sale.details.find(function (item) {
+        return item.product.id === product.id;
+      });
+      if (detail) detail.quantity++;else this.activeDesk.sale.details.push({
+        id: this.uuidv4(),
+        product: product,
+        product_id: product.id,
+        price: product.price,
+        quantity: 1
+      });
+    },
+    quantity: function quantity(id, operation) {
+      operation === "-" ? this.activeDesk.sale.details.find(function (item) {
+        return item.id === id;
+      }).quantity-- : this.activeDesk.sale.details.find(function (item) {
+        return item.id === id;
+      }).quantity++;
+    },
+    deleteRow: function deleteRow(row) {
+      if (typeof row.id === "string") this.activeDesk.sale.details.splice(this.activeDesk.sale.details.findIndex(function (item) {
+        return item.id === row.id;
+      }));else _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia["delete"]('/plan/' + this.activeDesk.sale.desk_id, {
+        detail_id: row.id
+      }, {
+        preserveState: true,
+        replace: true,
+        preserveScroll: true
+      });
+    },
+    uuidv4: function uuidv4() {
+      return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, function (c) {
+        return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
+      });
+    }
   }
 });
 
@@ -160,7 +320,7 @@ var render = function () {
     _vm._v(" "),
     _c(
       "div",
-      { staticClass: "bg-white flex" },
+      { staticClass: "bg-white" },
       _vm._l(_vm.sections, function (section) {
         return _c(
           "div",
@@ -174,18 +334,26 @@ var render = function () {
               },
             ],
             key: section.id,
-            staticClass: "flex flex-wrap gap-4 pt-4",
+            staticClass:
+              "grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 grid-flow-row gap-4 pt-4",
           },
           _vm._l(section.desks, function (desk) {
             return _c(
-              "Link",
+              "button",
               {
-                staticClass: "p-2 bg-gray-200 w-20 h-20 rounded relative",
-                class: { "bg-emerald-400 text-white": !!desk.sale },
-                attrs: { as: "button", href: desk.href },
+                staticClass:
+                  "bg-gray-200 h-32 rounded relative bg-emerald-400 text-white",
+                class: { "bg-red-400": !!desk.sale },
+                on: {
+                  click: function ($event) {
+                    return _vm.openDesk(desk, section)
+                  },
+                },
               },
               [
-                _c("span", [_vm._v(_vm._s(desk.name))]),
+                _c("span", [
+                  _vm._v(_vm._s(section.name) + " " + _vm._s(desk.name)),
+                ]),
                 _vm._v(" "),
                 desk.sale && desk.sale.details
                   ? _c(
@@ -205,11 +373,402 @@ var render = function () {
               ]
             )
           }),
-          1
+          0
         )
       }),
       0
     ),
+    _vm._v(" "),
+    _vm.activeDesk
+      ? _c(
+          "div",
+          {
+            staticClass: "fixed inset-0 z-50 overflow-y-auto",
+            attrs: {
+              "aria-labelledby": "modal-title",
+              role: "dialog",
+              "aria-modal": "true",
+            },
+          },
+          [
+            _c("div", { staticClass: "min-h-screen px-4 text-center" }, [
+              _c("div", {
+                directives: [
+                  {
+                    name: "show",
+                    rawName: "v-show",
+                    value: _vm.activeDesk,
+                    expression: "activeDesk",
+                  },
+                ],
+                staticClass:
+                  "fixed inset-0 transition-opacity transform bg-gray-500 bg-opacity-40",
+                attrs: {
+                  "x-transition:enter":
+                    "transition ease-out duration-300 transform",
+                  "x-transition:enter-start": "opacity-0",
+                  "x-transition:enter-end": "opacity-100",
+                  "x-transition:leave":
+                    "transition ease-in duration-200 transform",
+                  "x-transition:leave-start": "opacity-100",
+                  "x-transition:leave-end": "opacity-0",
+                  "aria-hidden": "true",
+                },
+                on: {
+                  click: function ($event) {
+                    _vm.activeDesk = null
+                  },
+                },
+              }),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.activeDesk,
+                      expression: "activeDesk",
+                    },
+                  ],
+                  staticClass:
+                    "inline-block w-full xl:max-w-5xl p-8 my-20 overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl",
+                  attrs: {
+                    "x-transition:enter":
+                      "transition ease-out duration-300 transform",
+                    "x-transition:enter-start":
+                      "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
+                    "x-transition:enter-end":
+                      "opacity-100 translate-y-0 sm:scale-100",
+                    "x-transition:leave":
+                      "transition ease-in duration-200 transform",
+                    "x-transition:leave-start":
+                      "opacity-100 translate-y-0 sm:scale-100",
+                    "x-transition:leave-end":
+                      "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
+                  },
+                },
+                [
+                  _c(
+                    "div",
+                    {
+                      staticClass:
+                        "flex items-center justify-between space-x-4",
+                    },
+                    [
+                      _c("span"),
+                      _vm._v(" "),
+                      _c(
+                        "h1",
+                        { staticClass: "text-xl font-medium text-gray-800" },
+                        [
+                          _vm._v(
+                            _vm._s(_vm.activeDesk.section_name) +
+                              " " +
+                              _vm._s(_vm.activeDesk.name)
+                          ),
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass:
+                            "text-gray-600 focus:outline-none hover:text-gray-700",
+                          on: {
+                            click: function ($event) {
+                              _vm.activeDesk = null
+                            },
+                          },
+                        },
+                        [
+                          _c(
+                            "svg",
+                            {
+                              staticClass: "w-6 h-6",
+                              attrs: {
+                                xmlns: "http://www.w3.org/2000/svg",
+                                fill: "none",
+                                viewBox: "0 0 24 24",
+                                stroke: "currentColor",
+                              },
+                            },
+                            [
+                              _c("path", {
+                                attrs: {
+                                  "stroke-linecap": "round",
+                                  "stroke-linejoin": "round",
+                                  "stroke-width": "2",
+                                  d: "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z",
+                                },
+                              }),
+                            ]
+                          ),
+                        ]
+                      ),
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "mt-5" }, [
+                    _c(
+                      "div",
+                      { staticClass: "grid grid-cols-3 grid-flow-row" },
+                      [
+                        _c(
+                          "div",
+                          {
+                            staticClass:
+                              "overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative",
+                          },
+                          [
+                            _c(
+                              "table",
+                              {
+                                staticClass:
+                                  "border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative",
+                              },
+                              [
+                                _c(
+                                  "tbody",
+                                  _vm._l(
+                                    _vm.activeDesk.sale.details,
+                                    function (item) {
+                                      return _c("tr", { key: item.id }, [
+                                        _c(
+                                          "td",
+                                          {
+                                            staticClass:
+                                              "border-dashed border-t border-gray-200",
+                                          },
+                                          [
+                                            _c("span", {
+                                              staticClass:
+                                                "text-gray-700 px-6 py-2 flex items-center",
+                                              domProps: {
+                                                textContent: _vm._s(
+                                                  item.product.name
+                                                ),
+                                              },
+                                            }),
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "td",
+                                          {
+                                            staticClass:
+                                              "border-dashed border-t border-gray-200",
+                                          },
+                                          [
+                                            _c("div", { staticClass: "flex" }, [
+                                              _c(
+                                                "button",
+                                                {
+                                                  staticClass:
+                                                    "p-2 bg-gray-200",
+                                                  attrs: {
+                                                    disabled:
+                                                      item.quantity <= 1,
+                                                  },
+                                                  on: {
+                                                    click: function ($event) {
+                                                      return _vm.quantity(
+                                                        item.id,
+                                                        "-"
+                                                      )
+                                                    },
+                                                  },
+                                                },
+                                                [_vm._v("-")]
+                                              ),
+                                              _vm._v(" "),
+                                              _c("span", {
+                                                staticClass:
+                                                  "text-gray-700 px-2 py-2 flex items-center",
+                                                domProps: {
+                                                  textContent: _vm._s(
+                                                    item.quantity
+                                                  ),
+                                                },
+                                              }),
+                                              _vm._v(" "),
+                                              _c(
+                                                "button",
+                                                {
+                                                  staticClass:
+                                                    "p-2 bg-gray-200",
+                                                  on: {
+                                                    click: function ($event) {
+                                                      return _vm.quantity(
+                                                        item.id,
+                                                        "+"
+                                                      )
+                                                    },
+                                                  },
+                                                },
+                                                [_vm._v("+")]
+                                              ),
+                                            ]),
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "td",
+                                          {
+                                            staticClass:
+                                              "border-dashed border-t border-gray-200",
+                                          },
+                                          [
+                                            _c(
+                                              "span",
+                                              {
+                                                staticClass:
+                                                  "text-gray-700 px-6 py-2 flex items-center",
+                                              },
+                                              [_vm._v(_vm._s(item.price) + "$")]
+                                            ),
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "td",
+                                          {
+                                            staticClass:
+                                              "border-dashed border-t border-gray-200",
+                                          },
+                                          [
+                                            _c(
+                                              "span",
+                                              {
+                                                staticClass:
+                                                  "text-gray-700 px-6 py-2 flex items-center",
+                                              },
+                                              [
+                                                _vm._v(
+                                                  _vm._s(
+                                                    (
+                                                      item.quantity * item.price
+                                                    ).toFixed(2)
+                                                  ) + "$"
+                                                ),
+                                              ]
+                                            ),
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "td",
+                                          {
+                                            staticClass:
+                                              "border-dashed border-t border-gray-200 whitespace-nowrap w-1",
+                                          },
+                                          [
+                                            _c(
+                                              "div",
+                                              {
+                                                staticClass:
+                                                  "fle.x gap-x-2 p-2",
+                                              },
+                                              [
+                                                _c(
+                                                  "button",
+                                                  {
+                                                    staticClass:
+                                                      "border border-red-500 bg-red-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline",
+                                                    attrs: { type: "button" },
+                                                    on: {
+                                                      click: function ($event) {
+                                                        return _vm.deleteRow(
+                                                          item
+                                                        )
+                                                      },
+                                                    },
+                                                  },
+                                                  [
+                                                    _vm._v(
+                                                      "\n                                                    Delete\n                                                "
+                                                    ),
+                                                  ]
+                                                ),
+                                              ]
+                                            ),
+                                          ]
+                                        ),
+                                      ])
+                                    }
+                                  ),
+                                  0
+                                ),
+                              ]
+                            ),
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "col-span-2" }, [
+                          _c(
+                            "div",
+                            { staticClass: "flex gap-2" },
+                            _vm._l(_vm.products, function (product) {
+                              return _c("button", {
+                                key: product.id,
+                                staticClass: "p-2 bg-gray-200",
+                                domProps: { textContent: _vm._s(product.name) },
+                                on: {
+                                  click: function ($event) {
+                                    return _vm.addProduct(product)
+                                  },
+                                },
+                              })
+                            }),
+                            0
+                          ),
+                        ]),
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "flex justify-end mt-6 gap-4" }, [
+                      _vm.activeDesk.sale.id
+                        ? _c(
+                            "button",
+                            {
+                              staticClass:
+                                "px-3 py-2 text-sm tracking-wide text-white capitalize transition-colors duration-200 transform bg-red-500 rounded-md dark:bg-red-600 dark:hover:bg-red-700 dark:focus:bg-red-700 hover:bg-red-600 focus:outline-none focus:bg-red-500 focus:ring focus:ring-red-300 focus:ring-opacity-50",
+                              attrs: { type: "button" },
+                              on: { click: _vm.closeDesk },
+                            },
+                            [
+                              _vm._v(
+                                "\n                                Close\n                            "
+                              ),
+                            ]
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.activeDesk.sale.details.length
+                        ? _c(
+                            "button",
+                            {
+                              staticClass:
+                                "px-3 py-2 text-sm tracking-wide text-white capitalize transition-colors duration-200 transform bg-indigo-500 rounded-md dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:bg-indigo-700 hover:bg-indigo-600 focus:outline-none focus:bg-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50",
+                              attrs: { type: "button" },
+                              on: { click: _vm.saveDesk },
+                            },
+                            [
+                              _vm._v(
+                                "\n                                Save\n                            "
+                              ),
+                            ]
+                          )
+                        : _vm._e(),
+                    ]),
+                  ]),
+                ]
+              ),
+            ]),
+          ]
+        )
+      : _vm._e(),
   ])
 }
 var staticRenderFns = []

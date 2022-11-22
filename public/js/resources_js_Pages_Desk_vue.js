@@ -12,6 +12,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @inertiajs/inertia */ "./node_modules/@inertiajs/inertia/dist/index.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+//
 //
 //
 //
@@ -117,6 +121,16 @@ __webpack_require__.r(__webpack_exports__);
         return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
       });
     },
+    close: function close() {
+      this.sale.status = "1";
+      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put('/plan/' + this.sale.desk_id, _objectSpread(_objectSpread({}, this.sale), {}, {
+        status: true
+      }), {
+        preserveState: true,
+        replace: true,
+        preserveScroll: true
+      });
+    },
     save: function save() {
       console.log(this.sale);
       _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put('/plan/' + this.sale.desk_id, this.sale, {
@@ -125,9 +139,6 @@ __webpack_require__.r(__webpack_exports__);
         preserveScroll: true
       });
     }
-  },
-  mounted: function mounted() {
-    console.log(this.sale);
   }
 });
 
@@ -224,7 +235,13 @@ var render = function () {
       _vm._v(" "),
       _c("h1", [_vm._v(_vm._s(_vm.desk.name))]),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.save } }, [_vm._v("Save")]),
+      _vm.sale.details.length
+        ? _c("button", { on: { click: _vm.save } }, [_vm._v("Save")])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.activeSale
+        ? _c("button", { on: { click: _vm.close } }, [_vm._v("Close")])
+        : _vm._e(),
       _vm._v(" "),
       _c("hr", { staticClass: "mt-4" }),
       _vm._v(" "),

@@ -67,18 +67,18 @@ Route::middleware('auth')->group(function () {
                         ->map(fn(Desk $desk) => [
                         'id' => $desk->id,
                         'name' => $desk->name,
-                        'sale' => $desk->sale(),
-                        'href' => route('desk', [$desk->id]),
+                        'sale' => $desk->sale()
                     ])
                 ])
-                ->filter(fn($item) => count($item["desks"]) > 0)
+                ->filter(fn($item) => count($item["desks"]) > 0),
+            'products' => \App\Models\Product::query()
+                ->where('organization_id', '=', Auth::user()->organization_id)
+                ->where('active', '=', true)
+                ->select(['id', 'name', 'price'])->get()
         ]);
     })->name('plan');
 
-    Route::get('plan/{desk}', function (Desk $record) {
-        /*if(!$record)
-            return Redirect::route('plan')->with(['message' => 'No records found', 'icon' => 'error']);*/
-
+    /*Route::get('plan/{desk}', function (Desk $record) {
         return Inertia::render("Desk", [
             'back' => route('plan'),
             'desk' => $record->only(['id', 'name']),
@@ -88,12 +88,9 @@ Route::middleware('auth')->group(function () {
                 ->where('active', '=', true)
                 ->select(['id', 'name', 'price'])->get()
         ]);
-    })->name('desk');
+    })->name('desk');*/
 
     Route::put('plan/{desk}', function (Request $request, Desk $record) {
-        /*if(!$record)
-            return Redirect::route('plan')->with(['message' => 'No records found', 'icon' => 'error']);*/
-
         $sale = $record->sales()->updateOrCreate(['id' => $request->get('id')], $request->except(['details']));
         collect($request->get('details'))->each(function($detail) use ($sale) {
             $sale->details()->updateOrCreate(['id' => $detail['id']], $detail);
@@ -102,11 +99,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::delete('plan/{desk}', function (Request $request, Desk $record) {
-        /*if(!$record)
-            return Redirect::route('plan')->with(['message' => 'No records found', 'icon' => 'error']);*/
-
         $record->sale()->details()->delete($request->get('detail_id')) > 0 && $record->sale()->details()->count() == 0 && $record->sale()->delete();
         return Redirect::route('plan');
     });
-
 });
