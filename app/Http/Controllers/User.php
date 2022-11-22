@@ -28,6 +28,8 @@ class User extends Controller
                 ->through(fn($item) => [
                     'id' => $item->id,
                     'name' => $item->name,
+                    'email' => $item->email,
+                    'organization' => $item->organization?->name,
                     'active' => $item->active,
                     'routes' => [
                         'activate' => route('users.update', [$item->id]),
@@ -65,6 +67,16 @@ class User extends Controller
             'header' => 'New User',
             'fields' => [
                 [
+                    'name' => 'organization_id',
+                    'label' => 'Organization',
+                    'type' => 'select',
+                    'optional' => true,
+                    'items' => \App\Models\Organization::query()
+                        ->where('active', true)
+                        ->get()
+                        ->pluck('name', 'id')
+                ],
+                [
                     'name' => 'name',
                     'label' => 'Name'
                 ],
@@ -99,7 +111,9 @@ class User extends Controller
         $input = $request->validate([
             'name' => ['required', 'max:50'],
             'email' => ['required', 'email', 'max:50', 'unique:users'],
-            'password' => ['required', 'min:4', 'max:32']
+            'password' => ['required', 'min:4', 'max:32'],
+            'active' => ['required', 'boolean'],
+            'organization_id' => ['nullable', 'exists:organizations,id']
         ]);
         $input["password"] = Hash::make($input["password"]);
         \App\Models\User::create($input);
@@ -134,6 +148,17 @@ class User extends Controller
             'id' => $record->id,
             'route' => 'users',
             'fields' => [
+                [
+                    'name' => 'organization_id',
+                    'label' => 'Organization',
+                    'type' => 'select',
+                    'optional' => true,
+                    'items' => \App\Models\Organization::query()
+                        ->where('active', true)
+                        ->get()
+                        ->pluck('name', 'id'),
+                    'value' => $record->organization_id
+                ],
                 [
                     'name' => 'name',
                     'label' => 'Name',
@@ -173,7 +198,7 @@ class User extends Controller
         if(!$record)
             return Redirect::route('users.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
-        $record->update($request->all());
+        $record->update($request->isNotFilled('password') ? $request->except('password') : collect($request->all())->put('password', Hash::make($request->get('password')))->all());
         return Redirect::route('users.index')->with(['message' => 'User successfully updated', 'icon' => 'success']);
     }
 

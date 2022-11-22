@@ -27,6 +27,7 @@ class Category extends Controller
                 ->through(fn($item) => [
                     'id' => $item->id,
                     'name' => $item->name,
+                    'parent_category' => $item->parent?->name,
                     'active' => $item->active,
                     'routes' => [
                         'activate' => route('categories.update', [$item->id]),
@@ -37,7 +38,8 @@ class Category extends Controller
             'filter' => request('search'),
             'header' => 'Categories',
             'columns' => [
-                'name' => 'Name'
+                'name' => 'Name',
+                'parent_category' => 'Parent Category'
             ],
             'routes' => [
                 'create' => route('categories.create')
@@ -56,6 +58,16 @@ class Category extends Controller
             'route' => 'categories',
             'header' => 'New Category',
             'fields' => [
+                [
+                    'name' => 'parent_id',
+                    'label' => 'Category',
+                    'type' => 'select',
+                    'optional' => true,
+                    'items' => \App\Models\Category::query()
+                        ->where('active', true)
+                        ->get()
+                        ->pluck('name', 'id')
+                ],
                 [
                     'name' => 'name',
                     'label' => 'Name'
@@ -87,7 +99,8 @@ class Category extends Controller
         $input = $request->validate([
             'name' => ['required', 'max:100'],
             'active' => ['boolean', 'required'],
-            'show_in_menu' => ['boolean', 'required']
+            'show_in_menu' => ['boolean', 'required'],
+            'parent_id' => ['nullable', 'exists:categories,id']
         ]);
         \App\Models\Category::create($input);
 
@@ -121,6 +134,18 @@ class Category extends Controller
             'id' => $record->id,
             'route' => 'categories',
             'fields' => [
+                [
+                    'name' => 'parent_id',
+                    'label' => 'Category',
+                    'type' => 'select',
+                    'optional' => true,
+                    'items' => \App\Models\Category::query()
+                        ->where('active', true)
+                        ->where('id', '!=', $record->id)
+                        ->get()
+                        ->pluck('name', 'id'),
+                    'value' => $record->parent_id
+                ],
                 [
                     'name' => 'name',
                     'label' => 'Name',

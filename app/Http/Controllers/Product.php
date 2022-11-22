@@ -61,6 +61,16 @@ class Product extends Controller
             'header' => 'New Product',
             'fields' => [
                 [
+                    'name' => 'category_id',
+                    'label' => 'Category',
+                    'type' => 'select',
+                    'optional' => true,
+                    'items' => \App\Models\Category::query()
+                        ->where('active', true)
+                        ->get()
+                        ->pluck('name', 'id')
+                ],
+                [
                     'name' => 'name',
                     'label' => 'Name'
                 ],
@@ -98,7 +108,8 @@ class Product extends Controller
             'name' => ['required', 'max:100'],
             'price' => ['numeric', 'required'],
             'active' => ['boolean', 'required'],
-            'show_in_menu' => ['boolean', 'required']
+            'show_in_menu' => ['boolean', 'required'],
+            'category_id' => ['nullable', 'exists:categories,id']
         ]);
         \App\Models\Product::create($input);
 
@@ -132,6 +143,17 @@ class Product extends Controller
             'id' => $record->id,
             'route' => 'products',
             'fields' => [
+                [
+                    'name' => 'category_id',
+                    'label' => 'Category',
+                    'type' => 'select',
+                    'optional' => true,
+                    'items' => \App\Models\Category::query()
+                        ->where('active', true)
+                        ->get()
+                        ->pluck('name', 'id'),
+                    'value' => $record->category_id
+                ],
                 [
                     'name' => 'name',
                     'label' => 'Name',
