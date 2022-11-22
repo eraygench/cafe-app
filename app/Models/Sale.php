@@ -34,6 +34,7 @@ class Sale extends Model
         'organization_id' => 'integer',
         'user_id' => 'integer',
         'desk_id' => 'integer',
+        'status' => 'boolean',
         'details' => SaleDetail::class
     ];
 

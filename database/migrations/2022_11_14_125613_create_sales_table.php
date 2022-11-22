@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('desk_id')->nullable()->constrained('desks');
-            $table->enum('status', [0, 1, 2]);
+            $table->boolean('status')->default(0);
             $table->timestamps();
         });
     }
