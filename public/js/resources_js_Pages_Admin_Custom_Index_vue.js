@@ -193,7 +193,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
   watch: {
     search: {
       handler: lodash_debounce__WEBPACK_IMPORTED_MODULE_2___default()(function (value) {
-        _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.get('/' + this.$props.route, {
+        _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.get(this.routes.search, {
           search: value
         }, {
           preserveState: true,

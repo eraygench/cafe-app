@@ -42,7 +42,8 @@ class Category extends Controller
                 'parent_category' => 'Parent Category'
             ],
             'routes' => [
-                'create' => route('categories.create')
+                'create' => route('categories.create'),
+                'search' => route('categories.index')
             ],
         ]);
     }
@@ -55,7 +56,10 @@ class Category extends Controller
     public function create()
     {
         return Inertia::render('Admin/Custom/Create', [
-            'route' => 'categories',
+            'routes' => [
+                'create' => route('categories.store'),
+                'cancel' => route('categories.index')
+            ],
             'header' => 'New Category',
             'fields' => [
                 [
@@ -132,7 +136,10 @@ class Category extends Controller
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
-            'route' => 'categories',
+            'routes' => [
+                'update' => route('categories.update', [$record->id]),
+                'cancel' => route('categories.index')
+            ],
             'fields' => [
                 [
                     'name' => 'parent_id',

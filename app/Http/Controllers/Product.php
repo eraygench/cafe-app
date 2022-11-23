@@ -44,7 +44,8 @@ class Product extends Controller
                 'price' => 'Price'
             ],
             'routes' => [
-                'create' => route('products.create')
+                'create' => route('products.create'),
+                'search' => route('products.index')
             ],
         ]);
     }
@@ -57,7 +58,10 @@ class Product extends Controller
     public function create()
     {
         return Inertia::render('Admin/Custom/Create', [
-            'route' => 'products',
+            'routes' => [
+                'create' => route('products.store'),
+                'cancel' => route('products.index')
+            ],
             'header' => 'New Product',
             'fields' => [
                 [
@@ -141,7 +145,10 @@ class Product extends Controller
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
-            'route' => 'products',
+            'routes' => [
+                'update' => route('products.update', [$record->id]),
+                'cancel' => route('products.index')
+            ],
             'fields' => [
                 [
                     'name' => 'category_id',

@@ -42,7 +42,8 @@ class Section extends Controller
                 'name' => 'Name'
             ],
             'routes' => [
-                'create' => route('sections.create')
+                'create' => route('sections.create'),
+                'search' => route('sections.index')
             ],
             'actions' => [
                 'show' => true
@@ -58,7 +59,10 @@ class Section extends Controller
     public function create()
     {
         return Inertia::render('Admin/Custom/Create', [
-            'route' => 'sections',
+            'routes' => [
+                'create' => route('sections.store'),
+                'cancel' => route('sections.index')
+            ],
             'header' => 'New Section',
             'fields' => [
                 [
@@ -117,7 +121,10 @@ class Section extends Controller
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
-            'route' => 'sections',
+            'routes' => [
+                'update' => route('sections.update', [$record->id]),
+                'cancel' => route('sections.index')
+            ],
             'fields' => [
                 [
                     'name' => 'name',

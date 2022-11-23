@@ -47,7 +47,8 @@ class User extends Controller
                 'name' => 'Name'
             ],
             'routes' => [
-                'create' => route('users.create')
+                'create' => route('users.create'),
+                'search' => route('users.index')
             ],
             /*'can' => [
                 'createUser' => Auth::user()->can('create', User::class)
@@ -63,7 +64,10 @@ class User extends Controller
     public function create()
     {
         return Inertia::render('Admin/Custom/Create', [
-            'route' => 'users',
+            'routes' => [
+                'create' => route('users.store'),
+                'cancel' => route('users.index')
+            ],
             'header' => 'New User',
             'fields' => [
                 [
@@ -146,7 +150,10 @@ class User extends Controller
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
-            'route' => 'users',
+            'routes' => [
+                'update' => route('users.update', [$record->id]),
+                'cancel' => route('users.index')
+            ],
             'fields' => [
                 [
                     'name' => 'organization_id',

@@ -182,7 +182,7 @@ var render = function () {
                   on: {
                     submit: function ($event) {
                       $event.preventDefault()
-                      return _vm.form.post("/register")
+                      _vm.form.post(_vm.route("register"))
                     },
                   },
                 },
@@ -368,7 +368,7 @@ var render = function () {
                 {
                   staticClass:
                     "text-white bg-purple-500 border-0 py-2 px-8 mt-2 focus:outline-none hover:bg-purple-600 rounded text-lg w-full",
-                  attrs: { href: "/login", as: "button" },
+                  attrs: { href: _vm.route("login"), as: "button" },
                 },
                 [_vm._v("Login")]
               ),

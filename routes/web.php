@@ -35,11 +35,30 @@ Route::post('logout', function () {
     return redirect()->route('login');
 })->middleware('auth');*/
 
-Route::middleware('auth')->group(function () {
+Route::get('/', function () {
+   return 'h';
+});
+
+Route::get('/menu/{organization_uuid}', function ($organization_uuid) {
+    $organization = \App\Models\Organization::query()->where('uuid', $organization_uuid)->with('categories')->firstOrFail();
+    return Inertia::render('Menu', [
+        'organization' => $organization
+    ]);
+});
+
+Route::get('/menu/{organization_uuid}/{category_uuid}', function ($organization_uuid, $category_uuid) {
+    $organization = \App\Models\Organization::query()->where('uuid', $organization_uuid)->firstOrFail();
+    $category = \App\Models\Category::query()->where('organization_id', $organization->id)->where('uuid', $category_uuid)->with('products')->firstOrFail();
+    return Inertia::render('Menu', [
+        'category' => $category
+    ]);
+});
+
+Route::middleware('auth')->prefix('admin')->group(function () {
 
     Route::get('/', function () {
-        return Inertia::render('Home');
-    });
+        return Inertia::render('Admin/Home');
+    })->name('home');
 
     Route::resource('users', \App\Http\Controllers\User::class)/*->can('isAdmin', 'App\Models\User')*/->withTrashed();
 
@@ -67,7 +86,10 @@ Route::middleware('auth')->group(function () {
                         ->map(fn(Desk $desk) => [
                         'id' => $desk->id,
                         'name' => $desk->name,
-                        'sale' => $desk->sale()
+                        'sale' => $desk->sale() ?
+                            collect($desk->sale())->put('total', $desk->sale()?->details()->get()->sum(fn ($detail) => $detail->quantity * $detail->price))->all()
+                         : null,
+                        'section_name' => $item->name
                     ])
                 ])
                 ->filter(fn($item) => count($item["desks"]) > 0),
@@ -96,10 +118,10 @@ Route::middleware('auth')->group(function () {
             $sale->details()->updateOrCreate(['id' => $detail['id']], $detail);
         });
         return Redirect::route('plan');
-    });
+    })->name('desk');
 
-    Route::delete('plan/{desk}', function (Request $request, Desk $record) {
-        $record->sale()->details()->delete($request->get('detail_id')) > 0 && $record->sale()->details()->count() == 0 && $record->sale()->delete();
+    Route::delete('plan/{desk}/{detail_id}', function (Request $request, Desk $record, $detail_id) {
+        $record->sale()->details()->firstWhere('id', $detail_id)->delete() && $record->sale()->details()->count() == 0 && $record->sale()->delete();
         return Redirect::route('plan');
-    });
+    })->name('desk-detail-delete');
 });

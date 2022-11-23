@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="id ? form.put('/' + route + '/' + id) : form.post('/' + route)" class="mx-auto w-full max-w-[550px] flex flex-col gap-y-4">
+    <form @submit.prevent="id ? form.put(routes.update) : form.post(routes.create)" class="mx-auto w-full max-w-[550px] flex flex-col gap-y-4">
         <Head :title="form.name ? form.name : 'New'" />
 
         <h1 v-if="header" class="text-3xl py-4 text-center" v-text="header"/>
@@ -53,7 +53,7 @@
                 Save
             </button>
             <Link
-                :href="'/' + route" as="button"
+                :href="routes.cancel" as="button"
                 class="hover:shadow-form rounded-md bg-gray-400 py-2 px-6 text-center text-base font-semibold text-white outline-none"
             >
                 Cancel
@@ -67,7 +67,7 @@ export default {
     props: {
         header: String,
         fields: Array,
-        route: String,
+        routes: Object,
         id: Number,
         items: Object
     },

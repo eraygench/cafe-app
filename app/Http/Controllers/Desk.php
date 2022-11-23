@@ -46,7 +46,8 @@ class Desk extends Controller
                 'name' => 'Name'
             ],
             'routes' => [
-                'create' => route('sections.desks.create', [$record->id])
+                'create' => route('sections.desks.create', [$record->id]),
+                'search' => route('sections.desks.index', [$record->id])
             ],
         ]);
     }
@@ -63,6 +64,10 @@ class Desk extends Controller
             return Redirect::route('sections.index')->with(['message' => 'No records found', 'icon' => 'error']);
 
         return Inertia::render('Admin/Custom/Create', [
+            'routes' => [
+                'create' => route('sections.desks.store', [$record->id]),
+                'cancel' => route('sections.desks.index', [$record->id])
+            ],
             'route' => 'sections/'.$record->id.'/desks',
             'header' => 'Generate Desk',
             'fields' => [
@@ -143,6 +148,10 @@ class Desk extends Controller
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
             'route' => 'sections/'.$section->id.'/desks',
+            'routes' => [
+                'update' => route('sections.desks.update', [$section->id,$record->id]),
+                'cancel' => route('sections.desks.index', [$section->id])
+            ],
             'fields' => [
                 [
                     'name' => 'name',

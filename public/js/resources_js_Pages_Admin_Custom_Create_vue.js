@@ -83,7 +83,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   props: {
     header: String,
     fields: Array,
-    route: String,
+    routes: Object,
     id: Number,
     items: Object
   },
@@ -191,8 +191,8 @@ var render = function () {
         submit: function ($event) {
           $event.preventDefault()
           _vm.id
-            ? _vm.form.put("/" + _vm.route + "/" + _vm.id)
-            : _vm.form.post("/" + _vm.route)
+            ? _vm.form.put(_vm.routes.update)
+            : _vm.form.post(_vm.routes.create)
         },
       },
     },
@@ -453,7 +453,7 @@ var render = function () {
             {
               staticClass:
                 "hover:shadow-form rounded-md bg-gray-400 py-2 px-6 text-center text-base font-semibold text-white outline-none",
-              attrs: { href: "/" + _vm.route, as: "button" },
+              attrs: { href: _vm.routes.cancel, as: "button" },
             },
             [_vm._v("\n            Cancel\n        ")]
           ),

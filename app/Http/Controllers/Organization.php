@@ -40,7 +40,8 @@ class Organization extends Controller
                 'name' => 'Name'
             ],
             'routes' => [
-                'create' => route('organizations.create')
+                'create' => route('organizations.create'),
+                'search' => route('organizations.index')
             ],
         ]);
     }
@@ -53,7 +54,10 @@ class Organization extends Controller
     public function create()
     {
         return Inertia::render('Admin/Custom/Create', [
-            'route' => 'organizations',
+            'routes' => [
+                'create' => route('organizations.store'),
+                'cancel' => route('organizations.index')
+            ],
             'header' => 'New Organization',
             'fields' => [
                 [
@@ -112,7 +116,10 @@ class Organization extends Controller
 
         return Inertia::render('Admin/Custom/Create', [
             'id' => $record->id,
-            'route' => 'organizations',
+            'routes' => [
+                'update' => route('organizations.update', [$record->id]),
+                'cancel' => route('organizations.index')
+            ],
             'fields' => [
                 [
                     'name' => 'name',

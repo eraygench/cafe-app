@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,15 @@ class Sale extends Model
         'status' => 'boolean',
         'details' => SaleDetail::class
     ];
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::createFromTimestamp(strtotime($value))
+            ->timezone(config('app.timezone'))
+            // Leave this part off if you want to keep the property as
+            // a Carbon object rather than always just returning a string
+            ->toDateTimeString();
+    }
 
     protected static function boot()
     {

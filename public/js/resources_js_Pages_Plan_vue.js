@@ -12,6 +12,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @inertiajs/inertia */ "./node_modules/@inertiajs/inertia/dist/index.js");
+/* harmony import */ var _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @vue-hero-icons/outline */ "./node_modules/@vue-hero-icons/outline/lib/index.es.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -129,6 +130,33 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -136,27 +164,38 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     sections: Array,
     products: Array
   },
+  components: {
+    TrashIcon: _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__.TrashIcon
+  },
   data: function data() {
     var _this$sections;
     return {
       activeTab: (_this$sections = this.sections) === null || _this$sections === void 0 ? void 0 : _this$sections[0].id,
-      activeDesk: null
+      activeDesk: null,
+      activeDesks: this.sections.flatMap(function (section) {
+        return section.desks.filter(function (desk) {
+          return desk.sale;
+        }).map(function (desk) {
+          desk.sale.created_at = new Date(desk.sale.created_at).toTimeString().substr(0, 5);
+          return desk;
+        });
+      })
     };
   },
   methods: {
-    openDesk: function openDesk(desk, section) {
+    openDesk: function openDesk(desk) {
       var _desk$sale;
       this.activeDesk = _objectSpread(_objectSpread({}, structuredClone(desk)), {}, {
-        section_name: section.name,
-        sale: (_desk$sale = desk.sale) !== null && _desk$sale !== void 0 ? _desk$sale : {
+        sale: structuredClone((_desk$sale = desk.sale) !== null && _desk$sale !== void 0 ? _desk$sale : {
           desk_id: desk.id,
           details: []
-        }
+        })
       });
       console.log(this.activeDesk);
     },
     closeDesk: function closeDesk() {
-      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put('/plan/' + this.activeDesk.sale.desk_id, _objectSpread(_objectSpread({}, this.activeDesk.sale), {}, {
+      console.log(this.sale);
+      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put(route('desk', this.activeDesk.sale.desk_id), _objectSpread(_objectSpread({}, this.activeDesk.sale), {}, {
         status: true
       }), {
         preserveState: false,
@@ -166,7 +205,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     },
     saveDesk: function saveDesk() {
       console.log(this.sale);
-      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put('/plan/' + this.activeDesk.sale.desk_id, this.activeDesk.sale, {
+      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put(route('desk', this.activeDesk.sale.desk_id), this.activeDesk.sale, {
         preserveState: false,
         replace: true,
         preserveScroll: true
@@ -194,10 +233,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     deleteRow: function deleteRow(row) {
       if (typeof row.id === "string") this.activeDesk.sale.details.splice(this.activeDesk.sale.details.findIndex(function (item) {
         return item.id === row.id;
-      }));else _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia["delete"]('/plan/' + this.activeDesk.sale.desk_id, {
-        detail_id: row.id
-      }, {
-        preserveState: true,
+      }));else _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia["delete"](route('desk-detail-delete', [this.activeDesk.sale.desk_id, row.id]), {
+        preserveState: false,
         replace: true,
         preserveScroll: true
       });
@@ -207,6 +244,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
       });
     }
+  },
+  mounted: function mounted() {
+    console.log(this.activeDesks);
   }
 });
 
@@ -298,85 +338,156 @@ var render = function () {
   var _c = _vm._self._c || _h
   return _c("div", [
     _c(
-      "ul",
-      { staticClass: "flex items-center" },
-      _vm._l(_vm.sections, function (section) {
-        return _c("li", {
-          key: section.id,
-          staticClass: "cursor-pointer py-2 px-4 text-gray-500 border-b-4",
-          class: {
-            "text-green-500 border-green-500": _vm.activeTab === section.id,
-          },
-          domProps: { textContent: _vm._s(section.name) },
-          on: {
-            click: function ($event) {
-              _vm.activeTab = section.id
-            },
-          },
-        })
-      }),
-      0
-    ),
-    _vm._v(" "),
-    _c(
       "div",
-      { staticClass: "bg-white" },
-      _vm._l(_vm.sections, function (section) {
-        return _c(
+      { staticClass: "bg-white flex flex-col md:grid grid-cols-3 gap-4" },
+      [
+        _c("div", [
+          _vm.activeDesks.length
+            ? _c(
+                "div",
+                {
+                  staticClass:
+                    "flex flex-col gap-0.5 bg-gray-200 rounded-lg border-2 border-gray-200 text-gray-900 text-sm font-medium",
+                },
+                _vm._l(_vm.activeDesks, function (desk) {
+                  return _c(
+                    "button",
+                    {
+                      key: desk.id,
+                      staticClass:
+                        "bg-white px-4 py-2 w-full grid grid-cols-3 gap-4 hover:bg-gray-100 hover:text-blue-700 cursor-pointer first:rounded-t-lg last:rounded-b-lg",
+                      on: {
+                        click: function ($event) {
+                          return _vm.openDesk(desk)
+                        },
+                      },
+                    },
+                    [
+                      _c("span", { staticClass: "col-span-2 text-start" }, [
+                        _vm._v(
+                          _vm._s(desk.section_name) + " " + _vm._s(desk.name)
+                        ),
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "span",
+                        { staticClass: "flex items-center justify-between" },
+                        [
+                          _c("span", { staticClass: "w-auto" }, [
+                            _vm._v(_vm._s(desk.sale.created_at)),
+                          ]),
+                          _vm._v(" "),
+                          _c("span", [_vm._v(_vm._s(desk.sale.total) + "$")]),
+                        ]
+                      ),
+                    ]
+                  )
+                }),
+                0
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.activeDesks.length === 0
+            ? _c(
+                "div",
+                {
+                  staticClass:
+                    "text-center w-full text-amber-500 font-semibold",
+                },
+                [_vm._v("No active sales found")]
+              )
+            : _vm._e(),
+        ]),
+        _vm._v(" "),
+        _c(
           "div",
-          {
-            directives: [
-              {
-                name: "show",
-                rawName: "v-show",
-                value: _vm.activeTab === section.id,
-                expression: "activeTab === section.id",
-              },
-            ],
-            key: section.id,
-            staticClass:
-              "grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 grid-flow-row gap-4 pt-4",
-          },
-          _vm._l(section.desks, function (desk) {
-            return _c(
-              "button",
+          { staticClass: "md:col-span-2" },
+          [
+            _c(
+              "ul",
               {
                 staticClass:
-                  "bg-gray-200 h-32 rounded relative bg-emerald-400 text-white",
-                class: { "bg-red-400": !!desk.sale },
-                on: {
-                  click: function ($event) {
-                    return _vm.openDesk(desk, section)
-                  },
-                },
+                  "flex items-center flex-nowrap overflow-x-auto pb-4 snap-x",
               },
-              [
-                _c("span", [
-                  _vm._v(_vm._s(section.name) + " " + _vm._s(desk.name)),
-                ]),
-                _vm._v(" "),
-                desk.sale && desk.sale.details
-                  ? _c(
-                      "span",
-                      { staticClass: "absolute left-1 bottom-1 text-xs" },
-                      [
-                        _vm._v(
-                          _vm._s(
-                            desk.sale.details.reduce(function (aac, detail) {
-                              return aac + detail.quantity * detail.price
-                            }, 0)
-                          ) + "$"
-                        ),
-                      ]
-                    )
-                  : _vm._e(),
-              ]
-            )
-          }),
-          0
-        )
-      }),
-      0
+              _vm._l(_vm.sections, function (section) {
+                return _c("li", {
+                  key: section.id,
+                  staticClass:
+                    "cursor-pointer py-2 px-4 text-gray-500 border-b-4 whitespace-nowrap snap-center",
+                  class: {
+                    "text-green-500 border-green-500":
+                      _vm.activeTab === section.id,
+                  },
+                  domProps: { textContent: _vm._s(section.name) },
+                  on: {
+                    click: function ($event) {
+                      _vm.activeTab = section.id
+                    },
+                  },
+                })
+              }),
+              0
+            ),
+            _vm._v(" "),
+            _vm._l(_vm.sections, function (section) {
+              return _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.activeTab === section.id,
+                      expression: "activeTab === section.id",
+                    },
+                  ],
+                  key: section.id,
+                  staticClass:
+                    "grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 xl:grid-cols-6 2xl:grid-cols-8 grid-flow-row gap-4",
+                },
+                _vm._l(section.desks, function (desk) {
+                  return _c(
+                    "button",
+                    {
+                      staticClass:
+                        "bg-gray-200 h-32 rounded relative bg-emerald-400 text-white",
+                      class: { "bg-red-400": !!desk.sale },
+                      on: {
+                        click: function ($event) {
+                          return _vm.openDesk(desk)
+                        },
+                      },
+                    },
+                    [
+                      desk.sale
+                        ? _c(
+                            "span",
+                            { staticClass: "absolute left-1 top-1 text-xs" },
+                            [_vm._v(_vm._s(desk.sale.created_at))]
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _c("span", [
+                        _vm._v(_vm._s(section.name) + " " + _vm._s(desk.name)),
+                      ]),
+                      _vm._v(" "),
+                      desk.sale && desk.sale.details
+                        ? _c(
+                            "span",
+                            { staticClass: "absolute left-1 bottom-1 text-xs" },
+                            [_vm._v(_vm._s(desk.sale.total) + "$")]
+                          )
+                        : _vm._e(),
+                    ]
+                  )
+                }),
+                0
+              )
+            }),
+          ],
+          2
+        ),
+      ]
     ),
     _vm._v(" "),
     _vm.activeDesk
@@ -513,138 +624,56 @@ var render = function () {
                   _c("div", { staticClass: "mt-5" }, [
                     _c(
                       "div",
-                      { staticClass: "grid grid-cols-3 grid-flow-row" },
+                      { staticClass: "grid grid-cols-5 grid-flow-row" },
                       [
                         _c(
                           "div",
                           {
                             staticClass:
-                              "overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative",
+                              "col-span-2 overflow-x-auto bg-white rounded-lg shadow overflow-y-auto relative",
                           },
                           [
-                            _c(
-                              "table",
-                              {
-                                staticClass:
-                                  "border-collapse table-auto w-full whitespace-no-wrap bg-white table-striped relative",
-                              },
-                              [
-                                _c(
-                                  "tbody",
+                            _vm.activeDesk.sale.details.length
+                              ? _c(
+                                  "div",
+                                  {
+                                    staticClass:
+                                      "flex flex-col gap-0.5 bg-gray-200 rounded-lg border-2 border-gray-200 text-gray-900 text-sm font-medium",
+                                  },
                                   _vm._l(
                                     _vm.activeDesk.sale.details,
                                     function (item) {
-                                      return _c("tr", { key: item.id }, [
-                                        _c(
-                                          "td",
-                                          {
-                                            staticClass:
-                                              "border-dashed border-t border-gray-200",
-                                          },
-                                          [
-                                            _c("span", {
+                                      return _c(
+                                        "button",
+                                        {
+                                          key: item.id,
+                                          staticClass:
+                                            "bg-white px-4 py-2 w-full grid grid-cols-3 gap-4 hover:bg-gray-100 hover:text-blue-700 cursor-pointer first:rounded-t-lg last:rounded-b-lg",
+                                        },
+                                        [
+                                          _c(
+                                            "span",
+                                            {
                                               staticClass:
-                                                "text-gray-700 px-6 py-2 flex items-center",
-                                              domProps: {
-                                                textContent: _vm._s(
-                                                  item.product.name
-                                                ),
-                                              },
-                                            }),
-                                          ]
-                                        ),
-                                        _vm._v(" "),
-                                        _c(
-                                          "td",
-                                          {
-                                            staticClass:
-                                              "border-dashed border-t border-gray-200",
-                                          },
-                                          [
-                                            _c("div", { staticClass: "flex" }, [
+                                                "col-span-2 text-start",
+                                            },
+                                            [_vm._v(_vm._s(item.product.name))]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "span",
+                                            {
+                                              staticClass:
+                                                "flex items-center justify-between",
+                                            },
+                                            [
                                               _c(
-                                                "button",
-                                                {
-                                                  staticClass:
-                                                    "p-2 bg-gray-200",
-                                                  attrs: {
-                                                    disabled:
-                                                      item.quantity <= 1,
-                                                  },
-                                                  on: {
-                                                    click: function ($event) {
-                                                      return _vm.quantity(
-                                                        item.id,
-                                                        "-"
-                                                      )
-                                                    },
-                                                  },
-                                                },
-                                                [_vm._v("-")]
+                                                "span",
+                                                { staticClass: "w-auto" },
+                                                [_vm._v(_vm._s(item.quantity))]
                                               ),
                                               _vm._v(" "),
-                                              _c("span", {
-                                                staticClass:
-                                                  "text-gray-700 px-2 py-2 flex items-center",
-                                                domProps: {
-                                                  textContent: _vm._s(
-                                                    item.quantity
-                                                  ),
-                                                },
-                                              }),
-                                              _vm._v(" "),
-                                              _c(
-                                                "button",
-                                                {
-                                                  staticClass:
-                                                    "p-2 bg-gray-200",
-                                                  on: {
-                                                    click: function ($event) {
-                                                      return _vm.quantity(
-                                                        item.id,
-                                                        "+"
-                                                      )
-                                                    },
-                                                  },
-                                                },
-                                                [_vm._v("+")]
-                                              ),
-                                            ]),
-                                          ]
-                                        ),
-                                        _vm._v(" "),
-                                        _c(
-                                          "td",
-                                          {
-                                            staticClass:
-                                              "border-dashed border-t border-gray-200",
-                                          },
-                                          [
-                                            _c(
-                                              "span",
-                                              {
-                                                staticClass:
-                                                  "text-gray-700 px-6 py-2 flex items-center",
-                                              },
-                                              [_vm._v(_vm._s(item.price) + "$")]
-                                            ),
-                                          ]
-                                        ),
-                                        _vm._v(" "),
-                                        _c(
-                                          "td",
-                                          {
-                                            staticClass:
-                                              "border-dashed border-t border-gray-200",
-                                          },
-                                          [
-                                            _c(
-                                              "span",
-                                              {
-                                                staticClass:
-                                                  "text-gray-700 px-6 py-2 flex items-center",
-                                              },
-                                              [
+                                              _c("span", [
                                                 _vm._v(
                                                   _vm._s(
                                                     (
@@ -652,60 +681,20 @@ var render = function () {
                                                     ).toFixed(2)
                                                   ) + "$"
                                                 ),
-                                              ]
-                                            ),
-                                          ]
-                                        ),
-                                        _vm._v(" "),
-                                        _c(
-                                          "td",
-                                          {
-                                            staticClass:
-                                              "border-dashed border-t border-gray-200 whitespace-nowrap w-1",
-                                          },
-                                          [
-                                            _c(
-                                              "div",
-                                              {
-                                                staticClass:
-                                                  "fle.x gap-x-2 p-2",
-                                              },
-                                              [
-                                                _c(
-                                                  "button",
-                                                  {
-                                                    staticClass:
-                                                      "border border-red-500 bg-red-500 text-white rounded-md px-4 py-2 transition duration-500 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline",
-                                                    attrs: { type: "button" },
-                                                    on: {
-                                                      click: function ($event) {
-                                                        return _vm.deleteRow(
-                                                          item
-                                                        )
-                                                      },
-                                                    },
-                                                  },
-                                                  [
-                                                    _vm._v(
-                                                      "\n                                                    Delete\n                                                "
-                                                    ),
-                                                  ]
-                                                ),
-                                              ]
-                                            ),
-                                          ]
-                                        ),
-                                      ])
+                                              ]),
+                                            ]
+                                          ),
+                                        ]
+                                      )
                                     }
                                   ),
                                   0
-                                ),
-                              ]
-                            ),
+                                )
+                              : _vm._e(),
                           ]
                         ),
                         _vm._v(" "),
-                        _c("div", { staticClass: "col-span-2" }, [
+                        _c("div", { staticClass: "col-span-3 pl-4" }, [
                           _c(
                             "div",
                             { staticClass: "flex gap-2" },
@@ -728,23 +717,6 @@ var render = function () {
                     ),
                     _vm._v(" "),
                     _c("div", { staticClass: "flex justify-end mt-6 gap-4" }, [
-                      _vm.activeDesk.sale.id
-                        ? _c(
-                            "button",
-                            {
-                              staticClass:
-                                "px-3 py-2 text-sm tracking-wide text-white capitalize transition-colors duration-200 transform bg-red-500 rounded-md dark:bg-red-600 dark:hover:bg-red-700 dark:focus:bg-red-700 hover:bg-red-600 focus:outline-none focus:bg-red-500 focus:ring focus:ring-red-300 focus:ring-opacity-50",
-                              attrs: { type: "button" },
-                              on: { click: _vm.closeDesk },
-                            },
-                            [
-                              _vm._v(
-                                "\n                                Close\n                            "
-                              ),
-                            ]
-                          )
-                        : _vm._e(),
-                      _vm._v(" "),
                       _vm.activeDesk.sale.details.length
                         ? _c(
                             "button",
@@ -757,6 +729,23 @@ var render = function () {
                             [
                               _vm._v(
                                 "\n                                Save\n                            "
+                              ),
+                            ]
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.activeDesk.sale.id
+                        ? _c(
+                            "button",
+                            {
+                              staticClass:
+                                "px-3 py-2 text-sm tracking-wide text-white capitalize transition-colors duration-200 transform bg-red-500 rounded-md dark:bg-red-600 dark:hover:bg-red-700 dark:focus:bg-red-700 hover:bg-red-600 focus:outline-none focus:bg-red-500 focus:ring focus:ring-red-300 focus:ring-opacity-50",
+                              attrs: { type: "button" },
+                              on: { click: _vm.closeDesk },
+                            },
+                            [
+                              _vm._v(
+                                "\n                                Close\n                            "
                               ),
                             ]
                           )

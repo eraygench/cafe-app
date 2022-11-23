@@ -141,7 +141,7 @@ export default {
     watch: {
         search: {
             handler: debounce(function (value) {
-                Inertia.get('/' + this.$props.route, {search: value}, {preserveState: true, replace: true, preserveScroll: true});
+                Inertia.get(this.routes.search, {search: value}, {preserveState: true, replace: true, preserveScroll: true});
             }, 300),
             deep: true
         }
