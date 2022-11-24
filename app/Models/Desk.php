@@ -31,7 +31,8 @@ class Desk extends Model
     protected $casts = [
         'id' => 'integer',
         'organization_id' => 'integer',
-        'active' => 'boolean'
+        'active' => 'boolean',
+        'section' => Section::class
     ];
 
     protected static function boot()
@@ -44,7 +45,6 @@ class Desk extends Model
 
     public function sale(): Model|null
     {
-        //if($this->id == 43) dd($this->hasMany(Sale::class)->firstWhere('status', '0'));
         return $this->hasMany(Sale::class)->with('details')->firstWhere('status', '0');
     }
 

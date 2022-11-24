@@ -75,28 +75,47 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('plan', function () {
         return Inertia::render("Plan", [
             'sections' => \App\Models\Section::query()
-                ->where('organization_id', '=', Auth::user()->organization_id)
-                ->where('active', '=', true)
+                ->where('organization_id', Auth::user()->organization_id)
+                ->where('active', true)
                 ->chunkMap(fn($item) => [
                     'id' => $item->id,
                     'name' => $item->name,
-                    'desks' => $item->desks()
-                        ->where('active', '=', true)
-                        ->get()
-                        ->map(fn(Desk $desk) => [
-                        'id' => $desk->id,
-                        'name' => $desk->name,
-                        'sale' => $desk->sale() ?
-                            collect($desk->sale())->put('total', $desk->sale()?->details()->get()->sum(fn ($detail) => $detail->quantity * $detail->price))->all()
-                         : null,
-                        'section_name' => $item->name
-                    ])
+                    'desk_count' => $item->desks()
+                        ->where('active', true)
+                        ->count()
                 ])
-                ->filter(fn($item) => count($item["desks"]) > 0),
+                ->filter(fn($item) => $item["desk_count"] > 0),
+            '_desks' => Desk::query()
+                ->where('active', true)
+                ->whereNotNull('section_id')
+                ->whereHas('section', function ($query) {
+                    $query
+                        ->where('active', true)
+                        ->where('organization_id', Auth::user()->organization_id);
+                })
+                ->get()
+                ->map(fn(Desk $desk) => [
+                    'id' => $desk->id,
+                    'name' => $desk->name,
+                    'sale' => $desk->sale() ?
+                        collect($desk->sale())->put('total', $desk->sale()?->details()->get()->sum(fn ($detail) => $detail->quantity * $detail->price))->all()
+                        : null,
+                    'section' => $desk->section()->first()
+                ]),
+            'categories' => \App\Models\Category::query()
+                ->where('organization_id', Auth::user()->organization_id)
+                ->where('active', true)
+                ->get(),
             'products' => \App\Models\Product::query()
-                ->where('organization_id', '=', Auth::user()->organization_id)
-                ->where('active', '=', true)
-                ->select(['id', 'name', 'price'])->get()
+                ->where('organization_id', Auth::user()->organization_id)
+                ->where('active', true)
+                ->whereNotNull('category_id')
+                ->whereHas('category', function ($query) {
+                    $query
+                        ->where('active', true)
+                        ->where('organization_id', Auth::user()->organization_id);
+                })
+                ->get()
         ]);
     })->name('plan');
 
@@ -113,10 +132,17 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     })->name('desk');*/
 
     Route::put('plan/{desk}', function (Request $request, Desk $record) {
-        $sale = $record->sales()->updateOrCreate(['id' => $request->get('id')], $request->except(['details']));
-        collect($request->get('details'))->each(function($detail) use ($sale) {
-            $sale->details()->updateOrCreate(['id' => $detail['id']], $detail);
-        });
+        if($request->has('details')) {
+            $sale = $record->sales()->updateOrCreate(['id' => $request->get('id')], $request->except(['details']));
+            collect($request->get('details'))->except('id')->each(function($detail) use ($sale) {
+                $current = $sale->details()->where('product_id', $detail['product_id'])->first();
+                if($current)
+                    $current->update(['quantity' => $current->quantity + $detail['quantity']]);
+                else
+                    $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except('id')->all());
+            });
+            //broadcast(new \App\Events\Sale($sale));
+        }
         return Redirect::route('plan');
     })->name('desk');
 
