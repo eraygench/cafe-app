@@ -30,13 +30,13 @@
                 <div v-for="section in sections" :key="section.id"
                      class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 grid-flow-row gap-4 mt-2"
                      v-show="activeTab === section.id">
-                    <button class="bg-gray-200 h-32 rounded relative bg-emerald-400 text-white transition-all disabled:bg-blue-400 disabled:cursor-not-allowed"
+                    <button class="bg-gray-200 h-32 rounded relative bg-emerald-400 text-white transition-all disabled:bg-blue-400 disabled:cursor-not-allowed px-2"
                             :disabled="desk.openedBy"
                             :class="{ 'bg-red-400': !!desk.sale }"
                             @click="openDesk(desk)"
                             v-for="desk in desks.filter(d => d.section.id === section.id)">
                         <span v-if="desk.sale" class="absolute left-1 top-1 text-xs">{{ desk.sale.hour }}</span>
-                        <span>{{ section.name }} {{ desk.name }}</span>
+                        <span class="break-all">{{ section.name }} {{ desk.name }}</span>
                         <span v-if="desk.sale && desk.sale.details"
                               class="absolute left-1 bottom-1 text-xs">{{ desk.sale.total }}$</span>
                         <span v-if="desk.openedBy" class="absolute right-1 bottom-1 text-xs">{{ desk.openedBy }}</span>
