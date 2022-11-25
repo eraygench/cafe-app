@@ -237,6 +237,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
 
 
 
@@ -275,6 +278,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           desk_id: desk.id,
           details: []
         })
+      });
+      Echo["private"]("SaleChannel.".concat(this.$page.props.auth.user.organization_id)).whisper('DeskOpen', {
+        deskId: this.activeDesk.id,
+        name: this.$page.props.auth.user.name
       });
     },
     closeSale: function closeSale() {
@@ -319,14 +326,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 _context.t0 = _context.t1;
               case 8:
                 if (!_context.t0) {
-                  _context.next = 13;
+                  _context.next = 14;
                   break;
                 }
+                Echo["private"]("SaleChannel.".concat(_this.$page.props.auth.user.organization_id)).whisper('DeskClose', {
+                  deskId: _this.activeDesk.id
+                });
                 _this.addProductTab = null;
                 _this.activeDesk = null;
                 _this.cart = [];
                 _this.addProductCategory = _this.categories.length ? _this.categories[0].id : null;
-              case 13:
+              case 14:
               case "end":
                 return _context.stop();
             }
@@ -335,41 +345,59 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }))();
     },
     saveDesk: function saveDesk() {
-      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put(route('desk', this.activeDesk.id), _objectSpread(_objectSpread({}, this.activeDesk.sale), {}, {
-        details: this.cart
-      }), {
-        preserveState: false,
-        replace: true,
-        preserveScroll: true
-      });
-    },
-    prevAddProductTab: function prevAddProductTab() {
       var _this2 = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                if (!(_this2.addProductTab === 1)) {
-                  _context2.next = 4;
+                _context2.next = 2;
+                return _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put(route('desk', _this2.activeDesk.id), _objectSpread(_objectSpread({}, _this2.activeDesk.sale), {}, {
+                  details: _this2.cart
+                }), {
+                  preserveState: false,
+                  replace: false,
+                  preserveScroll: true
+                });
+              case 2:
+                Echo["private"]("SaleChannel.".concat(_this2.$page.props.auth.user.organization_id)).whisper('DeskClose', {
+                  deskId: _this2.activeDesk.id
+                });
+              case 3:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }))();
+    },
+    prevAddProductTab: function prevAddProductTab() {
+      var _this3 = this;
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                if (!(_this3.addProductTab === 1)) {
+                  _context3.next = 4;
                   break;
                 }
-                _this2.addProductTab = 0;
-                _context2.next = 16;
+                _this3.addProductTab = 0;
+                _context3.next = 16;
                 break;
               case 4:
-                _context2.t0 = _this2.cart.length === 0;
-                if (_context2.t0) {
-                  _context2.next = 12;
+                _context3.t0 = _this3.cart.length === 0;
+                if (_context3.t0) {
+                  _context3.next = 12;
                   break;
                 }
-                _context2.t1 = _this2.cart.length > 0;
-                if (!_context2.t1) {
-                  _context2.next = 11;
+                _context3.t1 = _this3.cart.length > 0;
+                if (!_context3.t1) {
+                  _context3.next = 11;
                   break;
                 }
-                _context2.next = 10;
-                return _this2.$swal({
+                _context3.next = 10;
+                return _this3.$swal({
                   title: 'Are you sure?',
                   text: "You won't be able to revert this!",
                   icon: 'warning',
@@ -379,23 +407,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   confirmButtonText: 'Yes, back to the desk!'
                 });
               case 10:
-                _context2.t1 = _context2.sent.isConfirmed;
+                _context3.t1 = _context3.sent.isConfirmed;
               case 11:
-                _context2.t0 = _context2.t1;
+                _context3.t0 = _context3.t1;
               case 12:
-                if (!_context2.t0) {
-                  _context2.next = 16;
+                if (!_context3.t0) {
+                  _context3.next = 16;
                   break;
                 }
-                _this2.cart = [];
-                _this2.addProductTab = null;
-                _this2.addProductCategory = _this2.categories.length ? _this2.categories[0].id : null;
+                _this3.cart = [];
+                _this3.addProductTab = null;
+                _this3.addProductCategory = _this3.categories.length ? _this3.categories[0].id : null;
               case 16:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2);
+        }, _callee3);
       }))();
     },
     addProduct: function addProduct(product) {
@@ -427,7 +455,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }).quantity++;
     },
     deleteRow: function deleteRow(row) {
-      var _this3 = this;
+      var _this4 = this;
       this.$swal({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -436,14 +464,39 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
-      }).then(function (_ref) {
-        var isConfirmed = _ref.isConfirmed;
-        if (isConfirmed) _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia["delete"](route('desk-detail-delete', [_this3.activeDesk.id, row.id]), {
-          preserveState: false,
-          replace: true,
-          preserveScroll: true
-        });
-      });
+      }).then( /*#__PURE__*/function () {
+        var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(_ref) {
+          var isConfirmed;
+          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+            while (1) {
+              switch (_context4.prev = _context4.next) {
+                case 0:
+                  isConfirmed = _ref.isConfirmed;
+                  if (!isConfirmed) {
+                    _context4.next = 5;
+                    break;
+                  }
+                  _context4.next = 4;
+                  return _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia["delete"](route('desk-detail-delete', [_this4.activeDesk.id, row.id]), {
+                    preserveState: false,
+                    replace: true,
+                    preserveScroll: true
+                  });
+                case 4:
+                  Echo["private"]("SaleChannel.".concat(_this4.$page.props.auth.user.organization_id)).whisper('DeskClose', {
+                    deskId: _this4.activeDesk.id
+                  });
+                case 5:
+                case "end":
+                  return _context4.stop();
+              }
+            }
+          }, _callee4);
+        }));
+        return function (_x) {
+          return _ref2.apply(this, arguments);
+        };
+      }());
     },
     uuidv4: function uuidv4() {
       return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, function (c) {
@@ -452,17 +505,35 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   },
   mounted: function mounted() {
-    var channel = Echo.channel("SaleChannel.".concat(this.$page.props.auth.user.organization_id));
-    channel.listen('Sale', function (e) {
-      if (!!e.deskId) {
+    Echo.channel("SaleChannel.".concat(this.$page.props.auth.user.organization_id)).listen('Sale', function (event) {
+      if (!!event.deskId) {
         var desk = this.desks.find(function (desk) {
-          return desk.id === e.deskId;
+          return desk.id === event.deskId;
         });
         if (desk) {
-          desk.sale = e.sale;
+          desk.sale = event.sale;
           if (desk.sale) {
             desk.sale.hour = new Date(desk.sale.created_at).toTimeString().substring(0, 5);
           }
+        }
+      }
+    }.bind(this));
+    Echo["private"]("SaleChannel.".concat(this.$page.props.auth.user.organization_id)).listenForWhisper('DeskOpen', function (event) {
+      if (!!event.deskId) {
+        var desk = this.desks.find(function (desk) {
+          return desk.id === event.deskId;
+        });
+        if (desk) {
+          desk.openedBy = event.name;
+        }
+      }
+    }.bind(this)).listenForWhisper('DeskClose', function (event) {
+      if (!!event.deskId) {
+        var desk = this.desks.find(function (desk) {
+          return desk.id === event.deskId;
+        });
+        if (desk) {
+          desk.openedBy = null;
         }
       }
     }.bind(this));
@@ -580,7 +651,8 @@ var render = function () {
                       {
                         key: desk.id,
                         staticClass:
-                          "bg-white px-4 py-2 w-full grid grid-cols-3 gap-4 hover:bg-gray-100 hover:text-blue-700 cursor-pointer first:rounded-t-lg last:rounded-b-lg",
+                          "bg-white px-4 py-2 w-full grid grid-cols-3 gap-4 transition-all disabled:bg-blue-400 disabled:text-white disabled:cursor-not-allowed hover:bg-gray-100 hover:text-blue-700 cursor-pointer first:rounded-t-lg last:rounded-b-lg",
+                        attrs: { disabled: desk.openedBy },
                         on: {
                           click: function ($event) {
                             return _vm.openDesk(desk)
@@ -682,8 +754,9 @@ var render = function () {
                       "button",
                       {
                         staticClass:
-                          "bg-gray-200 h-32 rounded relative bg-emerald-400 text-white",
+                          "bg-gray-200 h-32 rounded relative bg-emerald-400 text-white transition-all disabled:bg-blue-400 disabled:cursor-not-allowed",
                         class: { "bg-red-400": !!desk.sale },
+                        attrs: { disabled: desk.openedBy },
                         on: {
                           click: function ($event) {
                             return _vm.openDesk(desk)
@@ -712,6 +785,17 @@ var render = function () {
                                 staticClass: "absolute left-1 bottom-1 text-xs",
                               },
                               [_vm._v(_vm._s(desk.sale.total) + "$")]
+                            )
+                          : _vm._e(),
+                        _vm._v(" "),
+                        desk.openedBy
+                          ? _c(
+                              "span",
+                              {
+                                staticClass:
+                                  "absolute right-1 bottom-1 text-xs",
+                              },
+                              [_vm._v(_vm._s(desk.openedBy))]
                             )
                           : _vm._e(),
                       ]

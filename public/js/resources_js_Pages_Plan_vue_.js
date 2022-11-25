@@ -6,7 +6,7 @@
   \**************************************/
 /***/ (() => {
 
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/Users/eraygench/workspace/cafe-app/resources/js/Pages/Plan.vue~'");
+throw new Error("Module parse failed: Unexpected token (1:0)\nYou may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders\n> <template>\n|     <div>\n|         <div class=\"bg-white flex flex-col lg:grid grid-cols-3 gap-4\">");
 
 /***/ })
 
