@@ -754,7 +754,7 @@ var render = function () {
                       "button",
                       {
                         staticClass:
-                          "bg-gray-200 h-32 rounded relative bg-emerald-400 text-white transition-all disabled:bg-blue-400 disabled:cursor-not-allowed",
+                          "bg-gray-200 h-32 rounded relative bg-emerald-400 text-white transition-all disabled:bg-blue-400 disabled:cursor-not-allowed px-2",
                         class: { "bg-red-400": !!desk.sale },
                         attrs: { disabled: desk.openedBy },
                         on: {
@@ -772,7 +772,7 @@ var render = function () {
                             )
                           : _vm._e(),
                         _vm._v(" "),
-                        _c("span", [
+                        _c("span", { staticClass: "break-all" }, [
                           _vm._v(
                             _vm._s(section.name) + " " + _vm._s(desk.name)
                           ),
