@@ -100,7 +100,8 @@ Route::middleware('auth')->prefix('admin')->group(function () {
                     'sale' => $desk->sale() ?
                         collect($desk->sale())->put('total', $desk->sale()?->details()->get()->sum(fn ($detail) => $detail->quantity * $detail->price))->all()
                         : null,
-                    'section' => $desk->section()->first()
+                    'section' => $desk->section()->first(),
+                    'openedBy' => null
                 ]),
             'categories' => \App\Models\Category::query()
                 ->where('organization_id', Auth::user()->organization_id)

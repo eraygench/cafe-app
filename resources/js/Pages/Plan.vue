@@ -6,7 +6,8 @@
                      class="flex flex-col gap-0.5 bg-gray-200 rounded-lg border-2 border-gray-200 text-gray-900 text-sm font-medium">
                     <button v-for="desk in desks.filter(d => d.sale)" :key="desk.id"
                             @click="openDesk(desk)"
-                            class="bg-white px-4 py-2 w-full grid grid-cols-3 gap-4 hover:bg-gray-100 hover:text-blue-700 cursor-pointer first:rounded-t-lg last:rounded-b-lg">
+                            :disabled="desk.openedBy"
+                            class="bg-white px-4 py-2 w-full grid grid-cols-3 gap-4 transition-all disabled:bg-blue-400 disabled:text-white disabled:cursor-not-allowed hover:bg-gray-100 hover:text-blue-700 cursor-pointer first:rounded-t-lg last:rounded-b-lg">
                         <span class="col-span-2 text-start">{{ desk.section.name }} {{ desk.name }}</span>
                         <span class="flex items-center justify-between">
                             <span class="w-auto">{{ desk.sale.hour }}</span>
@@ -29,7 +30,8 @@
                 <div v-for="section in sections" :key="section.id"
                      class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 grid-flow-row gap-4 mt-2"
                      v-show="activeTab === section.id">
-                    <button class="bg-gray-200 h-32 rounded relative bg-emerald-400 text-white"
+                    <button class="bg-gray-200 h-32 rounded relative bg-emerald-400 text-white transition-all disabled:bg-blue-400 disabled:cursor-not-allowed"
+                            :disabled="desk.openedBy"
                             :class="{ 'bg-red-400': !!desk.sale }"
                             @click="openDesk(desk)"
                             v-for="desk in desks.filter(d => d.section.id === section.id)">
@@ -37,6 +39,7 @@
                         <span>{{ section.name }} {{ desk.name }}</span>
                         <span v-if="desk.sale && desk.sale.details"
                               class="absolute left-1 bottom-1 text-xs">{{ desk.sale.total }}$</span>
+                        <span v-if="desk.openedBy" class="absolute right-1 bottom-1 text-xs">{{ desk.openedBy }}</span>
                     </button>
                 </div>
             </div>
@@ -255,6 +258,8 @@ export default {
                     details: []
                 })
             }
+            Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
+                .whisper('DeskOpen', {deskId: this.activeDesk.id, name: this.$page.props.auth.user.name})
         },
         closeSale() {
             Inertia.put(route('desk', this.activeDesk.id), {
@@ -272,17 +277,21 @@ export default {
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, close it!'
             })).isConfirmed)) {
+                Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
+                    .whisper('DeskClose', {deskId: this.activeDesk.id})
                 this.addProductTab = null
                 this.activeDesk = null
                 this.cart = []
                 this.addProductCategory = this.categories.length ? this.categories[0].id : null
             }
         },
-        saveDesk() {
-            Inertia.put(route('desk', this.activeDesk.id), {
+        async saveDesk() {
+            await Inertia.put(route('desk', this.activeDesk.id), {
                 ...this.activeDesk.sale,
                 details: this.cart
-            }, {preserveState: false, replace: true, preserveScroll: true})
+            }, {preserveState: false, replace: false, preserveScroll: true})
+            Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
+                .whisper('DeskClose', {deskId: this.activeDesk.id})
         },
         async prevAddProductTab() {
             if (this.addProductTab === 1)
@@ -337,13 +346,16 @@ export default {
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, delete it!'
-            }).then(({isConfirmed}) => {
-                if (isConfirmed)
-                    Inertia.delete(route('desk-detail-delete', [this.activeDesk.id, row.id]), {
+            }).then(async ({isConfirmed}) => {
+                if (isConfirmed) {
+                    await Inertia.delete(route('desk-detail-delete', [this.activeDesk.id, row.id]), {
                         preserveState: false,
                         replace: true,
                         preserveScroll: true
                     })
+                    Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
+                        .whisper('DeskClose', {deskId: this.activeDesk.id})
+                }
             })
         },
         uuidv4() {
@@ -353,18 +365,36 @@ export default {
         }
     },
     mounted() {
-        var channel = Echo.channel(`SaleChannel.${this.$page.props.auth.user.organization_id}`);
-        channel.listen('Sale', function (e) {
-            if (!!e.deskId) {
-                const desk = this.desks.find(desk => desk.id === e.deskId)
-                if (desk) {
-                    desk.sale = e.sale
-                    if (desk.sale) {
-                        desk.sale.hour = new Date(desk.sale.created_at).toTimeString().substring(0, 5)
+        Echo.channel(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
+            .listen('Sale', function (event) {
+                if (!!event.deskId) {
+                    const desk = this.desks.find(desk => desk.id === event.deskId)
+                    if (desk) {
+                        desk.sale = event.sale
+                        if (desk.sale) {
+                            desk.sale.hour = new Date(desk.sale.created_at).toTimeString().substring(0, 5)
+                        }
                     }
                 }
-            }
-        }.bind(this))
+            }.bind(this))
+
+        Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
+            .listenForWhisper('DeskOpen', function (event) {
+                if (!!event.deskId) {
+                    const desk = this.desks.find(desk => desk.id === event.deskId)
+                    if (desk) {
+                        desk.openedBy = event.name
+                    }
+                }
+            }.bind(this))
+            .listenForWhisper('DeskClose', function (event) {
+                if (!!event.deskId) {
+                    const desk = this.desks.find(desk => desk.id === event.deskId)
+                    if (desk) {
+                        desk.openedBy = null
+                    }
+                }
+            }.bind(this))
     }
 }
 </script>
