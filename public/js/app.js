@@ -85,15 +85,44 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  data: function data() {
+    return {
+      routes: [{
+        'link': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id ? route('plan') : route('home'),
+        'text': 'Home',
+        'visible': true
+      },
+      /*{
+          'link': route('sales'),
+          'text': 'Sales',
+          'visible': !this.$page.props.auth.user.is_admin && !this.$page.props.auth.user.organization_id
+      },*/
+      {
+        'link': route('users.index'),
+        'text': 'Users',
+        'visible': this.$page.props.auth.user.is_admin && !this.$page.props.auth.user.organization_id
+      }, {
+        'link': route('organizations.index'),
+        'text': 'Organizations',
+        'visible': this.$page.props.auth.user.is_admin && !this.$page.props.auth.user.organization_id
+      }, {
+        'link': route('products.index'),
+        'text': 'Products',
+        'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
+      }, {
+        'link': route('categories.index'),
+        'text': 'Categories',
+        'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
+      }, {
+        'link': route('sections.index'),
+        'text': 'Sections',
+        'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
+      }]
+    };
+  }
+});
 
 /***/ }),
 
@@ -696,132 +725,18 @@ var render = function () {
               staticClass:
                 "flex lg:w-2/5 flex-wrap items-center text-base md:ml-auto gap-x-5",
             },
-            [
-              _c(
-                "Link",
-                {
-                  class: {
-                    "text-orange-600": _vm
-                      .route("home")
-                      .endsWith(_vm.$page.url),
-                  },
-                  attrs: { href: _vm.route("home") },
-                },
-                [_vm._v("Home")]
-              ),
-              _vm._v(" "),
-              !_vm.$page.props.auth.user.is_admin &&
-              !_vm.$page.props.auth.user.organization_id
-                ? _c(
-                    "Link",
-                    {
-                      class: {
-                        "text-orange-600": _vm
-                          .route("sales")
-                          .endsWith(_vm.$page.url),
-                      },
-                      attrs: { href: _vm.route("sales") },
+            _vm._l(_vm.routes, function (route, key) {
+              return route.visible
+                ? _c("Link", {
+                    key: key,
+                    class: {
+                      "text-orange-600": route.link.endsWith(_vm.$page.url),
                     },
-                    [_vm._v("Sales")]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.$page.props.auth.user.is_admin &&
-              !_vm.$page.props.auth.user.organization_id
-                ? _c(
-                    "Link",
-                    {
-                      class: {
-                        "text-orange-600": _vm
-                          .route("users.index")
-                          .endsWith(_vm.$page.url),
-                      },
-                      attrs: { href: _vm.route("users.index") },
-                    },
-                    [_vm._v("Users")]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.$page.props.auth.user.is_admin &&
-              !_vm.$page.props.auth.user.organization_id
-                ? _c(
-                    "Link",
-                    {
-                      class: {
-                        "text-orange-600": _vm
-                          .route("organizations.index")
-                          .endsWith(_vm.$page.url),
-                      },
-                      attrs: { href: _vm.route("organizations.index") },
-                    },
-                    [_vm._v("Organizations")]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              !_vm.$page.props.auth.user.is_admin &&
-              _vm.$page.props.auth.user.organization_id
-                ? _c(
-                    "Link",
-                    {
-                      class: {
-                        "text-orange-600": _vm
-                          .route("products.index")
-                          .endsWith(_vm.$page.url),
-                      },
-                      attrs: { href: _vm.route("products.index") },
-                    },
-                    [_vm._v("Products")]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              !_vm.$page.props.auth.user.is_admin &&
-              _vm.$page.props.auth.user.organization_id
-                ? _c(
-                    "Link",
-                    {
-                      class: {
-                        "text-orange-600": _vm
-                          .route("categories.index")
-                          .endsWith(_vm.$page.url),
-                      },
-                      attrs: { href: _vm.route("categories.index") },
-                    },
-                    [_vm._v("Categories")]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              !_vm.$page.props.auth.user.is_admin &&
-              _vm.$page.props.auth.user.organization_id
-                ? _c(
-                    "Link",
-                    {
-                      class: {
-                        "text-orange-600": _vm
-                          .route("sections.index")
-                          .endsWith(_vm.$page.url),
-                      },
-                      attrs: { href: _vm.route("sections.index") },
-                    },
-                    [_vm._v("Sections")]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              !_vm.$page.props.auth.user.is_admin &&
-              _vm.$page.props.auth.user.organization_id
-                ? _c(
-                    "Link",
-                    {
-                      class: {
-                        "text-orange-600": _vm
-                          .route("plan")
-                          .endsWith(_vm.$page.url),
-                      },
-                      attrs: { href: _vm.route("plan") },
-                    },
-                    [_vm._v("Desk Plan")]
-                  )
-                : _vm._e(),
-            ],
+                    attrs: { href: route.link },
+                    domProps: { textContent: _vm._s(route.text) },
+                  })
+                : _vm._e()
+            }),
             1
           ),
           _vm._v(" "),
