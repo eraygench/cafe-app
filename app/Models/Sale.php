@@ -42,7 +42,7 @@ class Sale extends Model
     public function getCreatedAtAttribute($value)
     {
         return Carbon::createFromTimestamp(strtotime($value))
-            ->timezone(config('app.timezone'))
+            //->timezone(config('app.timezone'))
             // Leave this part off if you want to keep the property as
             // a Carbon object rather than always just returning a string
             ->toDateTimeString();

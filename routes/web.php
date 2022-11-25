@@ -141,13 +141,14 @@ Route::middleware('auth')->prefix('admin')->group(function () {
                 else
                     $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except('id')->all());
             });
-            //broadcast(new \App\Events\Sale($sale));
+            broadcast(new \App\Events\Sale($record->id))->toOthers();
         }
         return Redirect::route('plan');
     })->name('desk');
 
     Route::delete('plan/{desk}/{detail_id}', function (Request $request, Desk $record, $detail_id) {
         $record->sale()->details()->firstWhere('id', $detail_id)->delete() && $record->sale()->details()->count() == 0 && $record->sale()->delete();
+        broadcast(new \App\Events\Sale($record->id));
         return Redirect::route('plan');
     })->name('desk-detail-delete');
 });

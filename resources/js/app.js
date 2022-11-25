@@ -7,6 +7,19 @@ import { Head } from '@inertiajs/inertia-vue';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import { ZiggyVue } from 'ziggy-js/dist/vue';
 import { Ziggy } from './ziggy';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher/*new Pusher('23350e9fcf4a7f58a717', {
+    cluster: 'eu'
+})*/;
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: '23350e9fcf4a7f58a717',
+    cluster: 'eu',
+    encrypted: true,
+    enabledTransports: ['ws', 'wss'],
+});
 
 createInertiaApp({
     resolve: async name => {
