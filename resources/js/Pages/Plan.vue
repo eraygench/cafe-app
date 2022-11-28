@@ -8,7 +8,7 @@
                             @click="openDesk(desk)"
                             :disabled="desk.openedBy"
                             class="bg-white px-4 py-2 w-full grid grid-cols-3 gap-4 transition-all disabled:bg-blue-400 disabled:text-white disabled:cursor-not-allowed hover:bg-gray-100 hover:text-blue-700 cursor-pointer first:rounded-t-lg last:rounded-b-lg">
-                        <span class="col-span-2 text-start">{{ desk.section.name }} {{ desk.name }}</span>
+                        <span class="col-span-2 text-start line-clamp-2 break-all">{{ desk.section.name }} {{ desk.name }}</span>
                         <span class="flex items-center justify-between">
                             <span class="w-auto">{{ desk.sale.hour }}</span>
                             <span>{{ desk.sale.total }}$</span>
@@ -36,7 +36,7 @@
                             @click="openDesk(desk)"
                             v-for="desk in desks.filter(d => d.section.id === section.id)">
                         <span v-if="desk.sale" class="absolute left-1 top-1 text-xs">{{ desk.sale.hour }}</span>
-                        <span class="break-all">{{ section.name }} {{ desk.name }}</span>
+                        <span class="break-all line-clamp-3">{{ section.name }} {{ desk.name }}</span>
                         <span v-if="desk.sale && desk.sale.details"
                               class="absolute left-1 bottom-1 text-xs">{{ desk.sale.total }}$</span>
                         <span v-if="desk.openedBy" class="absolute right-1 bottom-1 text-xs">{{ desk.openedBy }}</span>
@@ -120,7 +120,7 @@
                                                     <div class="flex flex-1 flex-col">
                                                         <div>
                                                             <div class="flex justify-between text-base font-medium text-gray-900">
-                                                                <h3>{{ item.product.name }}</h3>
+                                                                <h3 class="line-clamp-2 break-all">{{ item.product.name }}</h3>
                                                                 <p class="ml-4">${{ item.quantity * item.price }}</p>
                                                             </div>
                                                             <!--                                                            <p class="mt-1 text-sm text-gray-500">Salmon</p>-->
@@ -149,33 +149,32 @@
                                                 @click="addProductCategory = category.id"
                                                 v-text="category.name"/>
                                         </ul>
-                                        <div v-for="category in categories" :key="category.id"
-                                             class="grid grid-cols-2 gap-4 mt-2"
-                                             v-show="addProductCategory === category.id">
-                                            <button class="bg-gray-400 h-32 rounded relative text-white"
+                                        <div class="grid grid-cols-2 gap-4 mt-2">
+                                            <button class="bg-gray-400 h-28 rounded relative text-white px-2"
                                                     @click="addProduct(product)"
                                                     :class="{ '!bg-emerald-400': cart.find(item => item.product_id === product.id) }"
-                                                    v-for="product in products.filter(d => d.category_id === category.id)">
+                                                    v-for="product in products.filter(d => d.category_id === addProductCategory)">
                                                 <span v-if="cart.find(item => item.product_id === product.id)"
                                                       class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-green-500 text-center p-1 rounded-full text-sm leading-none decoration-0">
-                                                    {{cart.find(item => item.product_id === product.id).quantity }}
+                                                    {{ cart.find(item => item.product_id === product.id).quantity }}
                                                 </span>
-                                                <span>{{ product.name }}</span>
+                                                <span class="line-clamp-2 break-all">{{ product.name }}</span>
                                                 <span class="absolute left-1 bottom-1 text-xs">{{product.price }}$</span>
                                             </button>
                                         </div>
                                     </div>
                                     <div v-else>
                                         <div class="flex flex-col select-none gap-2">
-                                            <span v-for="item in cart" class="flex items-center justify-between gap-2">
+                                            <div v-for="item in cart" class="flex items-center justify-between gap-2">
+                                                <span class="flex flex-1 line-clamp-2 break-all">{{ item.product_name }}</span>
                                                 <span class="border border-gray-400 rounded flex gap-1">
-                                                    <button class="py-2 px-2" @click="quantity(item.id, '-')">-</button>
+                                                    <button v-if="item.quantity > 1" class="py-2 px-2 text-red-400" @click="setItemQuantity(item.id, 0)"><TrashIcon /></button>
+                                                    <button class="py-2 px-2" @click="setItemQuantity(item.id, '-')" :class="{ 'text-red-400': item.quantity === 1 }"><Component :is="item.quantity === 1 ? 'TrashIcon' : 'MinusSmIcon'" /></button>
                                                     <span class="py-2 px-2 text-sm flex items-center justify-center w-10">{{ item.quantity }}</span>
-                                                    <button class="py-2 px-2" @click="quantity(item.id, '+')">+</button>
+                                                    <button class="py-2 px-2" @click="setItemQuantity(item.id, '+')"><PlusSmIcon /></button>
                                                 </span>
-                                                <span class="w-full text-center line-clamp-2">{{ item.product_name }}</span>
-                                                <span>{{ item.quantity * item.price }}$</span>
-                                            </span>
+                                                <span class="w-14 text-right">{{ item.quantity * item.price }}$</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -187,8 +186,10 @@
                                         <p>${{ activeDesk.sale.total }}</p>
                                     </div>
                                     <div class="mt-6">
-                                        <a href="#"
-                                           class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">Checkout</a>
+                                        <button @click="checkout"
+                                           class="flex items-center justify-center w-full rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">
+                                            Checkout
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="border-t border-gray-200 py-6 px-4 sm:px-6">
@@ -220,7 +221,7 @@
 
 <script>
 import {Inertia} from "@inertiajs/inertia";
-import {TrashIcon, XIcon, ArrowLeftIcon, ArrowRightIcon} from '@vue-hero-icons/outline'
+import {TrashIcon, XIcon, ArrowLeftIcon, ArrowRightIcon, MinusSmIcon, PlusSmIcon} from '@vue-hero-icons/outline'
 
 export default {
     props: {
@@ -233,7 +234,9 @@ export default {
         TrashIcon,
         XIcon,
         ArrowLeftIcon,
-        ArrowRightIcon
+        ArrowRightIcon,
+        MinusSmIcon,
+        PlusSmIcon
     },
     data() {
         return ({
@@ -261,8 +264,8 @@ export default {
             Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
                 .whisper('DeskOpen', {deskId: this.activeDesk.id, name: this.$page.props.auth.user.name})
         },
-        closeSale() {
-            Inertia.put(route('desk', this.activeDesk.id), {
+        checkout() {
+            Inertia.put(route('plan.update', this.activeDesk.id), {
                 ...this.activeDesk.sale,
                 status: true
             }, {preserveState: false, replace: true, preserveScroll: true})
@@ -286,7 +289,7 @@ export default {
             }
         },
         async saveDesk() {
-            await Inertia.put(route('desk', this.activeDesk.id), {
+            await Inertia.put(route('plan.update', this.activeDesk.id), {
                 ...this.activeDesk.sale,
                 details: this.cart
             }, {preserveState: false, replace: false, preserveScroll: true})
@@ -325,7 +328,7 @@ export default {
                     quantity: 1
                 })
         },
-        quantity(id, operation) {
+        setItemQuantity(id, operation) {
             if (operation === "-")
                 if (this.cart.find(item => item.id === id).quantity > 1)
                     this.cart.find(item => item.id === id).quantity--
@@ -334,8 +337,13 @@ export default {
                     if (this.cart.length === 0)
                         this.addProductTab = 0
                 }
-            else
+            else if (operation === "+")
                 this.cart.find(item => item.id === id).quantity++
+            else if (operation === 0) {
+                this.cart.splice(this.cart.findIndex(item => item.id === id), 1)
+                if (this.cart.length === 0)
+                    this.addProductTab = 0
+            }
         },
         deleteRow(row) {
             this.$swal({
@@ -348,7 +356,7 @@ export default {
                 confirmButtonText: 'Yes, delete it!'
             }).then(async ({isConfirmed}) => {
                 if (isConfirmed) {
-                    await Inertia.delete(route('desk-detail-delete', [this.activeDesk.id, row.id]), {
+                    await Inertia.delete(route('plan.delete', [this.activeDesk.id, row.id]), {
                         preserveState: false,
                         replace: true,
                         preserveScroll: true
@@ -365,6 +373,7 @@ export default {
         }
     },
     mounted() {
+        console.log(this.products)
         Echo.channel(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
             .listen('Sale', function (event) {
                 if (!!event.deskId) {
