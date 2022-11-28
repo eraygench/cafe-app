@@ -60,17 +60,17 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         return Inertia::render('Admin/Home');
     })->name('home');
 
-    Route::resource('users', \App\Http\Controllers\User::class)/*->can('isAdmin', 'App\Models\User')*/->withTrashed();
+    Route::resource('users', \App\Http\Controllers\User::class)/*->can('isAdmin', 'App\Models\User')*/;
 
-    Route::resource('organizations', \App\Http\Controllers\Organization::class)/*->can('isAdmin', 'App\Models\User')*/->withTrashed();
+    Route::resource('organizations', \App\Http\Controllers\Organization::class)/*->can('isAdmin', 'App\Models\User')*/;
 
-    Route::resource('categories', \App\Http\Controllers\Category::class)/*->can('isOrganizationUser', 'App\Models\User')*/->withTrashed();
+    Route::resource('categories', \App\Http\Controllers\Category::class)/*->can('isOrganizationUser', 'App\Models\User')*/;
 
     Route::resource('products', \App\Http\Controllers\Product::class)/*->can('isOrganizationUser', 'App\Models\User')*/->withTrashed();
 
-    Route::resource('sections', \App\Http\Controllers\Section::class)/*->can('isOrganizationUser', 'App\Models\User')*/->withTrashed();
+    Route::resource('sections', \App\Http\Controllers\Section::class)/*->can('isOrganizationUser', 'App\Models\User')*/;
 
-    Route::resource('sections.desks', \App\Http\Controllers\Desk::class)/*->can('isOrganizationUser', 'App\Models\User')*/->withTrashed();
+    Route::resource('sections.desks', \App\Http\Controllers\Desk::class)/*->can('isOrganizationUser', 'App\Models\User')*/;
 
     Route::get('plan', function () {
         return Inertia::render("Plan", [
@@ -106,6 +106,11 @@ Route::middleware('auth')->prefix('admin')->group(function () {
             'categories' => \App\Models\Category::query()
                 ->where('organization_id', Auth::user()->organization_id)
                 ->where('active', true)
+                ->whereHas('products', function ($query) {
+                    $query
+                        ->where('active', true)
+                        ->where('organization_id', Auth::user()->organization_id);
+                })
                 ->get(),
             'products' => \App\Models\Product::query()
                 ->where('organization_id', Auth::user()->organization_id)
@@ -145,11 +150,11 @@ Route::middleware('auth')->prefix('admin')->group(function () {
             broadcast(new \App\Events\Sale($record->id))->toOthers();
         }
         return Redirect::route('plan');
-    })->name('desk');
+    })->name('plan.update');
 
     Route::delete('plan/{desk}/{detail_id}', function (Request $request, Desk $record, $detail_id) {
         $record->sale()->details()->firstWhere('id', $detail_id)->delete() && $record->sale()->details()->count() == 0 && $record->sale()->delete();
         broadcast(new \App\Events\Sale($record->id));
         return Redirect::route('plan');
-    })->name('desk-detail-delete');
+    })->name('plan.delete');
 });
