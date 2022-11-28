@@ -39,7 +39,7 @@ class Category extends Controller
             'header' => 'Categories',
             'columns' => [
                 'name' => 'Name',
-                'parent_category' => 'Parent Category'
+//                'parent_category' => 'Parent Category'
             ],
             'routes' => [
                 'create' => route('categories.create'),
@@ -62,16 +62,16 @@ class Category extends Controller
             ],
             'header' => 'New Category',
             'fields' => [
-                [
-                    'name' => 'parent_id',
-                    'label' => 'Category',
-                    'type' => 'select',
-                    'optional' => true,
-                    'items' => \App\Models\Category::query()
-                        ->where('active', true)
-                        ->get()
-                        ->pluck('name', 'id')
-                ],
+//                [
+//                    'name' => 'parent_id',
+//                    'label' => 'Category',
+//                    'type' => 'select',
+//                    'optional' => true,
+//                    'items' => \App\Models\Category::query()
+//                        ->where('active', true)
+//                        ->get()
+//                        ->pluck('name', 'id')
+//                ],
                 [
                     'name' => 'name',
                     'label' => 'Name'
@@ -104,7 +104,7 @@ class Category extends Controller
             'name' => ['required', 'max:100'],
             'active' => ['boolean', 'required'],
             'show_in_menu' => ['boolean', 'required'],
-            'parent_id' => ['nullable', 'exists:categories,id']
+//            'parent_id' => ['nullable', 'exists:categories,id']
         ]);
         \App\Models\Category::create($input);
 
