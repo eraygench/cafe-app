@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class Desk extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.

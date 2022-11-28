@@ -21,7 +21,6 @@ return new class extends Migration
             $table->foreignId('section_id')->constrained('sections')->onDelete('cascade');
             $table->text('name');
             $table->boolean('active')->default(1);
-            $table->softDeletes();
             $table->timestamps();
         });
     }
