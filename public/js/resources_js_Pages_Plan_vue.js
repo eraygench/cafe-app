@@ -240,6 +240,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
 
 
 
@@ -254,7 +255,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     TrashIcon: _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__.TrashIcon,
     XIcon: _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__.XIcon,
     ArrowLeftIcon: _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__.ArrowLeftIcon,
-    ArrowRightIcon: _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__.ArrowRightIcon
+    ArrowRightIcon: _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__.ArrowRightIcon,
+    MinusSmIcon: _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__.MinusSmIcon,
+    PlusSmIcon: _vue_hero_icons_outline__WEBPACK_IMPORTED_MODULE_1__.PlusSmIcon
   },
   data: function data() {
     var _this$sections;
@@ -284,8 +287,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         name: this.$page.props.auth.user.name
       });
     },
-    closeSale: function closeSale() {
-      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put(route('desk', this.activeDesk.id), _objectSpread(_objectSpread({}, this.activeDesk.sale), {}, {
+    checkout: function checkout() {
+      _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put(route('plan.update', this.activeDesk.id), _objectSpread(_objectSpread({}, this.activeDesk.sale), {}, {
         status: true
       }), {
         preserveState: false,
@@ -352,7 +355,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put(route('desk', _this2.activeDesk.id), _objectSpread(_objectSpread({}, _this2.activeDesk.sale), {}, {
+                return _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia.put(route('plan.update', _this2.activeDesk.id), _objectSpread(_objectSpread({}, _this2.activeDesk.sale), {}, {
                   details: _this2.cart
                 }), {
                   preserveState: false,
@@ -438,7 +441,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         quantity: 1
       });
     },
-    quantity: function quantity(id, operation) {
+    setItemQuantity: function setItemQuantity(id, operation) {
       if (operation === "-") {
         if (this.cart.find(function (item) {
           return item.id === id;
@@ -450,9 +453,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           }), 1);
           if (this.cart.length === 0) this.addProductTab = 0;
         }
-      } else this.cart.find(function (item) {
+      } else if (operation === "+") this.cart.find(function (item) {
         return item.id === id;
-      }).quantity++;
+      }).quantity++;else if (operation === 0) {
+        this.cart.splice(this.cart.findIndex(function (item) {
+          return item.id === id;
+        }), 1);
+        if (this.cart.length === 0) this.addProductTab = 0;
+      }
     },
     deleteRow: function deleteRow(row) {
       var _this4 = this;
@@ -477,7 +485,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     break;
                   }
                   _context4.next = 4;
-                  return _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia["delete"](route('desk-detail-delete', [_this4.activeDesk.id, row.id]), {
+                  return _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_0__.Inertia["delete"](route('plan.delete', [_this4.activeDesk.id, row.id]), {
                     preserveState: false,
                     replace: true,
                     preserveScroll: true
@@ -505,6 +513,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   },
   mounted: function mounted() {
+    console.log(this.products);
     Echo.channel("SaleChannel.".concat(this.$page.props.auth.user.organization_id)).listen('Sale', function (event) {
       if (!!event.deskId) {
         var desk = this.desks.find(function (desk) {
@@ -660,11 +669,20 @@ var render = function () {
                         },
                       },
                       [
-                        _c("span", { staticClass: "col-span-2 text-start" }, [
-                          _vm._v(
-                            _vm._s(desk.section.name) + " " + _vm._s(desk.name)
-                          ),
-                        ]),
+                        _c(
+                          "span",
+                          {
+                            staticClass:
+                              "col-span-2 text-start line-clamp-2 break-all",
+                          },
+                          [
+                            _vm._v(
+                              _vm._s(desk.section.name) +
+                                " " +
+                                _vm._s(desk.name)
+                            ),
+                          ]
+                        ),
                         _vm._v(" "),
                         _c(
                           "span",
@@ -772,7 +790,7 @@ var render = function () {
                             )
                           : _vm._e(),
                         _vm._v(" "),
-                        _c("span", { staticClass: "break-all" }, [
+                        _c("span", { staticClass: "break-all line-clamp-3" }, [
                           _vm._v(
                             _vm._s(section.name) + " " + _vm._s(desk.name)
                           ),
@@ -1014,15 +1032,22 @@ var render = function () {
                                                                   "flex justify-between text-base font-medium text-gray-900",
                                                               },
                                                               [
-                                                                _c("h3", [
-                                                                  _vm._v(
-                                                                    _vm._s(
-                                                                      item
-                                                                        .product
-                                                                        .name
-                                                                    )
-                                                                  ),
-                                                                ]),
+                                                                _c(
+                                                                  "h3",
+                                                                  {
+                                                                    staticClass:
+                                                                      "line-clamp-2 break-all",
+                                                                  },
+                                                                  [
+                                                                    _vm._v(
+                                                                      _vm._s(
+                                                                        item
+                                                                          .product
+                                                                          .name
+                                                                      )
+                                                                    ),
+                                                                  ]
+                                                                ),
                                                                 _vm._v(" "),
                                                                 _c(
                                                                   "p",
@@ -1115,168 +1140,149 @@ var render = function () {
                                         ),
                                       ])
                                     : _vm.addProductTab === 0
-                                    ? _c(
-                                        "div",
-                                        [
-                                          _c(
-                                            "ul",
-                                            {
-                                              staticClass:
-                                                "flex items-center flex-nowrap overflow-x-auto pb-2 snap-x",
-                                            },
-                                            _vm._l(
-                                              _vm.categories,
-                                              function (category) {
-                                                return _c("li", {
-                                                  key: category.id,
-                                                  staticClass:
-                                                    "cursor-pointer py-2 px-4 text-gray-500 border-b-4 whitespace-nowrap snap-center",
-                                                  class: {
-                                                    "text-green-500 border-green-500":
-                                                      _vm.addProductCategory ===
-                                                      category.id,
-                                                  },
-                                                  domProps: {
-                                                    textContent: _vm._s(
-                                                      category.name
-                                                    ),
-                                                  },
-                                                  on: {
-                                                    click: function ($event) {
-                                                      _vm.addProductCategory =
-                                                        category.id
-                                                    },
-                                                  },
-                                                })
-                                              }
-                                            ),
-                                            0
-                                          ),
-                                          _vm._v(" "),
+                                    ? _c("div", [
+                                        _c(
+                                          "ul",
+                                          {
+                                            staticClass:
+                                              "flex items-center flex-nowrap overflow-x-auto pb-2 snap-x",
+                                          },
                                           _vm._l(
                                             _vm.categories,
                                             function (category) {
-                                              return _c(
-                                                "div",
-                                                {
-                                                  directives: [
-                                                    {
-                                                      name: "show",
-                                                      rawName: "v-show",
-                                                      value:
-                                                        _vm.addProductCategory ===
-                                                        category.id,
-                                                      expression:
-                                                        "addProductCategory === category.id",
-                                                    },
-                                                  ],
-                                                  key: category.id,
-                                                  staticClass:
-                                                    "grid grid-cols-2 gap-4 mt-2",
+                                              return _c("li", {
+                                                key: category.id,
+                                                staticClass:
+                                                  "cursor-pointer py-2 px-4 text-gray-500 border-b-4 whitespace-nowrap snap-center",
+                                                class: {
+                                                  "text-green-500 border-green-500":
+                                                    _vm.addProductCategory ===
+                                                    category.id,
                                                 },
-                                                _vm._l(
-                                                  _vm.products.filter(function (
-                                                    d
+                                                domProps: {
+                                                  textContent: _vm._s(
+                                                    category.name
+                                                  ),
+                                                },
+                                                on: {
+                                                  click: function ($event) {
+                                                    _vm.addProductCategory =
+                                                      category.id
+                                                  },
+                                                },
+                                              })
+                                            }
+                                          ),
+                                          0
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "div",
+                                          {
+                                            staticClass:
+                                              "grid grid-cols-2 gap-4 mt-2",
+                                          },
+                                          _vm._l(
+                                            _vm.products.filter(function (d) {
+                                              return (
+                                                d.category_id ===
+                                                _vm.addProductCategory
+                                              )
+                                            }),
+                                            function (product) {
+                                              return _c(
+                                                "button",
+                                                {
+                                                  staticClass:
+                                                    "bg-gray-400 h-28 rounded relative text-white px-2",
+                                                  class: {
+                                                    "!bg-emerald-400":
+                                                      _vm.cart.find(function (
+                                                        item
+                                                      ) {
+                                                        return (
+                                                          item.product_id ===
+                                                          product.id
+                                                        )
+                                                      }),
+                                                  },
+                                                  on: {
+                                                    click: function ($event) {
+                                                      return _vm.addProduct(
+                                                        product
+                                                      )
+                                                    },
+                                                  },
+                                                },
+                                                [
+                                                  _vm.cart.find(function (
+                                                    item
                                                   ) {
                                                     return (
-                                                      d.category_id ===
-                                                      category.id
+                                                      item.product_id ===
+                                                      product.id
                                                     )
-                                                  }),
-                                                  function (product) {
-                                                    return _c(
-                                                      "button",
-                                                      {
-                                                        staticClass:
-                                                          "bg-gray-400 h-32 rounded relative text-white",
-                                                        class: {
-                                                          "!bg-emerald-400":
-                                                            _vm.cart.find(
-                                                              function (item) {
-                                                                return (
-                                                                  item.product_id ===
-                                                                  product.id
-                                                                )
-                                                              }
-                                                            ),
+                                                  })
+                                                    ? _c(
+                                                        "span",
+                                                        {
+                                                          staticClass:
+                                                            "absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-green-500 text-center p-1 rounded-full text-sm leading-none decoration-0",
                                                         },
-                                                        on: {
-                                                          click: function (
-                                                            $event
-                                                          ) {
-                                                            return _vm.addProduct(
-                                                              product
-                                                            )
-                                                          },
-                                                        },
-                                                      },
-                                                      [
-                                                        _vm.cart.find(function (
-                                                          item
-                                                        ) {
-                                                          return (
-                                                            item.product_id ===
-                                                            product.id
-                                                          )
-                                                        })
-                                                          ? _c(
-                                                              "span",
-                                                              {
-                                                                staticClass:
-                                                                  "absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-green-500 text-center p-1 rounded-full text-sm leading-none decoration-0",
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  "\n                                                " +
-                                                                    _vm._s(
-                                                                      _vm.cart.find(
-                                                                        function (
-                                                                          item
-                                                                        ) {
-                                                                          return (
-                                                                            item.product_id ===
-                                                                            product.id
-                                                                          )
-                                                                        }
-                                                                      ).quantity
-                                                                    ) +
-                                                                    "\n                                            "
-                                                                ),
-                                                              ]
-                                                            )
-                                                          : _vm._e(),
-                                                        _vm._v(" "),
-                                                        _c("span", [
+                                                        [
                                                           _vm._v(
-                                                            _vm._s(product.name)
-                                                          ),
-                                                        ]),
-                                                        _vm._v(" "),
-                                                        _c(
-                                                          "span",
-                                                          {
-                                                            staticClass:
-                                                              "absolute left-1 bottom-1 text-xs",
-                                                          },
-                                                          [
-                                                            _vm._v(
+                                                            "\n                                                " +
                                                               _vm._s(
-                                                                product.price
-                                                              ) + "$"
-                                                            ),
-                                                          ]
-                                                        ),
-                                                      ]
-                                                    )
-                                                  }
-                                                ),
-                                                0
+                                                                _vm.cart.find(
+                                                                  function (
+                                                                    item
+                                                                  ) {
+                                                                    return (
+                                                                      item.product_id ===
+                                                                      product.id
+                                                                    )
+                                                                  }
+                                                                ).quantity
+                                                              ) +
+                                                              "\n                                            "
+                                                          ),
+                                                        ]
+                                                      )
+                                                    : _vm._e(),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "span",
+                                                    {
+                                                      staticClass:
+                                                        "line-clamp-2 break-all",
+                                                    },
+                                                    [
+                                                      _vm._v(
+                                                        _vm._s(product.name)
+                                                      ),
+                                                    ]
+                                                  ),
+                                                  _vm._v(" "),
+                                                  _c(
+                                                    "span",
+                                                    {
+                                                      staticClass:
+                                                        "absolute left-1 bottom-1 text-xs",
+                                                    },
+                                                    [
+                                                      _vm._v(
+                                                        _vm._s(product.price) +
+                                                          "$"
+                                                      ),
+                                                    ]
+                                                  ),
+                                                ]
                                               )
                                             }
                                           ),
-                                        ],
-                                        2
-                                      )
+                                          0
+                                        ),
+                                      ])
                                     : _c("div", [
                                         _c(
                                           "div",
@@ -1286,7 +1292,7 @@ var render = function () {
                                           },
                                           _vm._l(_vm.cart, function (item) {
                                             return _c(
-                                              "span",
+                                              "div",
                                               {
                                                 staticClass:
                                                   "flex items-center justify-between gap-2",
@@ -1296,26 +1302,73 @@ var render = function () {
                                                   "span",
                                                   {
                                                     staticClass:
+                                                      "flex flex-1 line-clamp-2 break-all",
+                                                  },
+                                                  [
+                                                    _vm._v(
+                                                      _vm._s(item.product_name)
+                                                    ),
+                                                  ]
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "span",
+                                                  {
+                                                    staticClass:
                                                       "border border-gray-400 rounded flex gap-1",
                                                   },
                                                   [
+                                                    item.quantity > 1
+                                                      ? _c(
+                                                          "button",
+                                                          {
+                                                            staticClass:
+                                                              "py-2 px-2 text-red-400",
+                                                            on: {
+                                                              click: function (
+                                                                $event
+                                                              ) {
+                                                                return _vm.setItemQuantity(
+                                                                  item.id,
+                                                                  0
+                                                                )
+                                                              },
+                                                            },
+                                                          },
+                                                          [_c("TrashIcon")],
+                                                          1
+                                                        )
+                                                      : _vm._e(),
+                                                    _vm._v(" "),
                                                     _c(
                                                       "button",
                                                       {
                                                         staticClass:
                                                           "py-2 px-2",
+                                                        class: {
+                                                          "text-red-400":
+                                                            item.quantity === 1,
+                                                        },
                                                         on: {
                                                           click: function (
                                                             $event
                                                           ) {
-                                                            return _vm.quantity(
+                                                            return _vm.setItemQuantity(
                                                               item.id,
                                                               "-"
                                                             )
                                                           },
                                                         },
                                                       },
-                                                      [_vm._v("-")]
+                                                      [
+                                                        _c(
+                                                          item.quantity === 1
+                                                            ? "TrashIcon"
+                                                            : "MinusSmIcon",
+                                                          { tag: "Component" }
+                                                        ),
+                                                      ],
+                                                      1
                                                     ),
                                                     _vm._v(" "),
                                                     _c(
@@ -1340,14 +1393,15 @@ var render = function () {
                                                           click: function (
                                                             $event
                                                           ) {
-                                                            return _vm.quantity(
+                                                            return _vm.setItemQuantity(
                                                               item.id,
                                                               "+"
                                                             )
                                                           },
                                                         },
                                                       },
-                                                      [_vm._v("+")]
+                                                      [_c("PlusSmIcon")],
+                                                      1
                                                     ),
                                                   ]
                                                 ),
@@ -1356,22 +1410,17 @@ var render = function () {
                                                   "span",
                                                   {
                                                     staticClass:
-                                                      "w-full text-center line-clamp-2",
+                                                      "w-14 text-right",
                                                   },
                                                   [
                                                     _vm._v(
-                                                      _vm._s(item.product_name)
+                                                      _vm._s(
+                                                        item.quantity *
+                                                          item.price
+                                                      ) + "$"
                                                     ),
                                                   ]
                                                 ),
-                                                _vm._v(" "),
-                                                _c("span", [
-                                                  _vm._v(
-                                                    _vm._s(
-                                                      item.quantity * item.price
-                                                    ) + "$"
-                                                  ),
-                                                ]),
                                               ]
                                             )
                                           }),
@@ -1410,7 +1459,21 @@ var render = function () {
                                         ]
                                       ),
                                       _vm._v(" "),
-                                      _vm._m(0),
+                                      _c("div", { staticClass: "mt-6" }, [
+                                        _c(
+                                          "button",
+                                          {
+                                            staticClass:
+                                              "flex items-center justify-center w-full rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700",
+                                            on: { click: _vm.checkout },
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n                                        Checkout\n                                    "
+                                            ),
+                                          ]
+                                        ),
+                                      ]),
                                     ]
                                   )
                                 : _vm._e(),
@@ -1485,24 +1548,7 @@ var render = function () {
     ),
   ])
 }
-var staticRenderFns = [
-  function () {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "mt-6" }, [
-      _c(
-        "a",
-        {
-          staticClass:
-            "flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700",
-          attrs: { href: "#" },
-        },
-        [_vm._v("Checkout")]
-      ),
-    ])
-  },
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
