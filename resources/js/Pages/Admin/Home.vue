@@ -106,6 +106,31 @@
                 </div>
             </div>
         </div>
+        <hr/>
+        <div class="grid grid-cols-4 gap-4 gap-y-6 py-4">
+            <div class="receipt">
+                <header class="flex flex-col gap-2 text-center">
+                    <p class="text-xl font-bold">
+                        Shop
+                    </p>
+                    <p class="text-sm text-gray-400">13 December 2020</p>
+                </header>
+                <dl class="flex flex-col gap-y-1">
+                    <div class="flex justify-between">
+                        <dt class="text-gray-900">CSS Candies</dt>
+                        <dd class="text-gray-900">£9.99</dd>
+                    </div>
+                    <div class="flex justify-between">
+                        <dt class="text-gray-900">CSS Candies</dt>
+                        <dd class="text-gray-900">£9.99</dd>
+                    </div>
+                </dl>
+                <div class="flex justify-between font-bold">
+                    <dt class="text-gray-900">Total</dt>
+                    <dd class="text-gray-900">£26.75</dd>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
