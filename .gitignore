@@ -27,3 +27,7 @@ public/hot
 storage/*.key
 .env.*.php
 .env.php
+
+public/css/
+public/js/
+public/mix-manifest.json
