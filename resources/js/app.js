@@ -6,7 +6,6 @@ import Layout from "./Shared/Layout";
 import { Head } from '@inertiajs/inertia-vue';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import { ZiggyVue } from 'ziggy-js/dist/vue';
-import { Ziggy } from './ziggy';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
@@ -32,7 +31,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         Vue.use(plugin)
         Vue.use(VueSweetalert2);
-        Vue.use(ZiggyVue, Ziggy);
+        Vue.use(ZiggyVue);
         Vue.component('Link', Link)
         Vue.component('Head', Head)
         new Vue({
