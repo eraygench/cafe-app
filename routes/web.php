@@ -1,12 +1,5 @@
 <?php
 
-use App\Models\Desk;
-use App\Models\Sale;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -36,7 +29,7 @@ Route::post('logout', function () {
 })->middleware('auth');*/
 
 Route::get('/', function () {
-   return 'h';
+   return 'index';
 });
 
 Route::get('/menu/{organization_uuid}', function ($organization_uuid) {
@@ -72,89 +65,37 @@ Route::middleware('auth')->prefix('admin')->group(function () {
 
     Route::resource('sections.desks', \App\Http\Controllers\Desk::class)/*->can('isOrganizationUser', 'App\Models\User')*/;
 
-    Route::get('plan', function () {
-        return Inertia::render("Plan", [
-            'sections' => \App\Models\Section::query()
-                ->where('organization_id', Auth::user()->organization_id)
-                ->where('active', true)
-                ->chunkMap(fn($item) => [
+    Route::get('plan', [\App\Http\Controllers\Plan::class, 'index'])->name('plan.index');
+    Route::put('plan/{desk}', [\App\Http\Controllers\Plan::class, 'update'])->name('plan.update');
+    Route::delete('plan/{desk}/{detail_id}', [\App\Http\Controllers\Plan::class, 'destroy'])->name('plan.delete');
+
+    Route::get('sales', function () {
+        return Inertia::render('Admin/Custom/Index', [
+            'data' => \App\Models\Sale::query()
+                ->when(request('search'), function($query, $search) {
+                    $query->where('id', 'like', "%{$search}%");
+                })
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn($item) => [
                     'id' => $item->id,
-                    'name' => $item->name,
-                    'desk_count' => $item->desks()
-                        ->where('active', true)
-                        ->count()
-                ])
-                ->filter(fn($item) => $item["desk_count"] > 0),
-            '_desks' => Desk::query()
-                ->where('active', true)
-                ->whereNotNull('section_id')
-                ->whereHas('section', function ($query) {
-                    $query
-                        ->where('active', true)
-                        ->where('organization_id', Auth::user()->organization_id);
-                })
-                ->get()
-                ->map(fn(Desk $desk) => [
-                    'id' => $desk->id,
-                    'name' => $desk->name,
-                    'sale' => $desk->sale() ?
-                        collect($desk->sale())->put('total', $desk->sale()?->details()->get()->sum(fn ($detail) => $detail->quantity * $detail->price))->all()
-                        : null,
-                    'section' => $desk->section()->first(),
-                    'openedBy' => null
+                    'date' => $item->created_at,
+                    'desk' => $item->desk?->section?->name . ' ' . $item->desk?->name,
+                    'amount' => $item->details()->get()->sum(fn ($detail) => $detail->quantity * $detail->price)
                 ]),
-            'categories' => \App\Models\Category::query()
-                ->where('organization_id', Auth::user()->organization_id)
-                ->where('active', true)
-                ->whereHas('products', function ($query) {
-                    $query
-                        ->where('active', true)
-                        ->where('organization_id', Auth::user()->organization_id);
-                })
-                ->get(),
-            'products' => \App\Models\Product::query()
-                ->where('organization_id', Auth::user()->organization_id)
-                ->where('active', true)
-                ->whereNotNull('category_id')
-                ->whereHas('category', function ($query) {
-                    $query
-                        ->where('active', true)
-                        ->where('organization_id', Auth::user()->organization_id);
-                })
-                ->get()
+            'filter' => request('search'),
+            'header' => 'Sales',
+            'columns' => [
+                'id' => 'Sale Id',
+                'date' => 'Date',
+                'desk' => 'Desk',
+                'amount' => 'Amount'
+            ],
+            'actions' => false,
+            'routes' => [
+                'search' => route('sales')
+            ]
         ]);
-    })->name('plan');
+    })->name('sales');
 
-    /*Route::get('plan/{desk}', function (Desk $record) {
-        return Inertia::render("Desk", [
-            'back' => route('plan'),
-            'desk' => $record->only(['id', 'name']),
-            'activeSale' => $record->sales->firstWhere('status', '=', 0),
-            'products' => \App\Models\Product::query()
-                ->where('organization_id', '=', Auth::user()->organization_id)
-                ->where('active', '=', true)
-                ->select(['id', 'name', 'price'])->get()
-        ]);
-    })->name('desk');*/
-
-    Route::put('plan/{desk}', function (Request $request, Desk $record) {
-        if($request->has('details')) {
-            $sale = $record->sales()->updateOrCreate(['id' => $request->get('id')], $request->except(['details']));
-            collect($request->get('details'))->except('id')->each(function($detail) use ($sale) {
-                $current = $sale->details()->where('product_id', $detail['product_id'])->first();
-                if($current)
-                    $current->update(['quantity' => $current->quantity + $detail['quantity']]);
-                else
-                    $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except('id')->all());
-            });
-            broadcast(new \App\Events\Sale($record->id))->toOthers();
-        }
-        return Redirect::route('plan');
-    })->name('plan.update');
-
-    Route::delete('plan/{desk}/{detail_id}', function (Request $request, Desk $record, $detail_id) {
-        $record->sale()->details()->firstWhere('id', $detail_id)->delete() && $record->sale()->details()->count() == 0 && $record->sale()->delete();
-        broadcast(new \App\Events\Sale($record->id));
-        return Redirect::route('plan');
-    })->name('plan.delete');
 });
