@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 class Desk extends Model
@@ -31,8 +30,8 @@ class Desk extends Model
     protected $casts = [
         'id' => 'integer',
         'organization_id' => 'integer',
-        'active' => 'boolean',
-        'section' => Section::class
+        'section_id' => 'integer',
+        'active' => 'boolean'
     ];
 
     protected static function boot()

@@ -21,8 +21,7 @@ class Sale extends Model
         'organization_id',
         'user_id',
         'desk_id',
-        'status',
-        'details'
+        'status'
     ];
 
     /**
@@ -35,8 +34,7 @@ class Sale extends Model
         'organization_id' => 'integer',
         'user_id' => 'integer',
         'desk_id' => 'integer',
-        'status' => 'boolean',
-        'details' => SaleDetail::class
+        'status' => 'boolean'
     ];
 
     public function getCreatedAtAttribute($value)

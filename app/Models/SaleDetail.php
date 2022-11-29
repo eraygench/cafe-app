@@ -31,11 +31,15 @@ class SaleDetail extends Model
         'category_id' => 'integer',
         'organization_id' => 'integer',
         'quantity' => 'integer',
-        'price' => 'decimal:2',
+        'price' => 'decimal:2'
     ];
 
     public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+    public function sale(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Sale::class);
     }
 }
