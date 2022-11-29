@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="bg-white flex flex-col lg:grid grid-cols-3 gap-4">
+        <div class="flex flex-col lg:grid grid-cols-3 gap-4">
             <div>
                 <div v-if="desks.filter(d => d.sale).length"
                      class="flex flex-col gap-0.5 bg-gray-200 rounded-lg border-2 border-gray-200 text-gray-900 text-sm font-medium">
@@ -16,7 +16,8 @@
                     </button>
                 </div>
                 <div v-if="desks.filter(d => d.sale).length === 0"
-                     class="text-center w-full text-amber-500 font-semibold">No active sales found
+                     class="text-center w-full text-amber-500 font-semibold">
+                    No active sales found
                 </div>
             </div>
             <div class="md:col-span-2">
@@ -57,13 +58,13 @@
             -->
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity ease-in-out duration-500 opacity-0"
                  :class="{ 'opacity-100': activeDesk, 'select-none pointer-events-none': !activeDesk }"
-                 @click="closeDeskModal"></div>
+                 @click="closeDeskModal"/>
 
             <div class="fixed inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute inset-0 overflow-hidden">
                     <div
-                        class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 transform transition ease-in-out duration-500 sm:duration-700"
-                        :class="{ 'translate-x-full': !activeDesk }">
+                        class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 transform transition translate-x-full ease-in-out duration-500 sm:duration-700"
+                        :class="{ 'translate-x-0': activeDesk }">
                         <!--
                           Slide-over panel, show/hide based on slide-over state.
 
@@ -75,7 +76,7 @@
                             To: "translate-x-full"
                         -->
                         <div class="pointer-events-auto w-screen max-w-md"
-                             :class="{ '!pointer-events-none translate-x-full': !activeDesk }">
+                             :class="{ '!pointer-events-none': !activeDesk }">
                             <div v-if="activeDesk" class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                                 <div
                                     class="flex items-start justify-between border-b border-gray-200 py-6 px-4 sm:px-6">
@@ -141,7 +142,7 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <div v-else-if="addProductTab === 0">
+                                    <div v-else-if="addProductTab === 0" class="select-none">
                                         <ul class="flex items-center flex-nowrap overflow-x-auto pb-2 snap-x">
                                             <li v-for="category in categories" :key="category.id"
                                                 class="cursor-pointer py-2 px-4 text-gray-500 border-b-4 whitespace-nowrap snap-center"
@@ -373,7 +374,6 @@ export default {
         }
     },
     mounted() {
-        console.log(this.products)
         Echo.channel(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
             .listen('Sale', function (event) {
                 if (!!event.deskId) {
