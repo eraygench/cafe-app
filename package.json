@@ -1,9 +1,8 @@
 {
     "private": true,
     "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "watch": "npx mix watch"
+        "dev": "npx mix watch",
+        "build": "npx mix"
     },
     "devDependencies": {
         "@tailwindcss/line-clamp": "^0.4.2",
