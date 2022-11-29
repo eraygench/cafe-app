@@ -1,8 +1,5 @@
 <template>
     <div>
-        <Head title="Organizations" />
-        <h1 class="text-3xl py-4 border-b mb-10" v-text="header"/>
-
         <div class="mb-4 flex justify-between items-center">
             <div class="flex-1 pr-4">
                 <div class="relative md:w-1/3">
@@ -106,7 +103,6 @@ export default {
         data: Object,
         filter: String,
         can: Object,
-        header: String,
         columns: Object,
         actions: Object|Boolean,
         routes: Object

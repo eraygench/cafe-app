@@ -1,13 +1,6 @@
 <template>
-<!--    <main>
-        <Nav />
-        <section class="text-gray-600 body-font">
-            <div class="container px-5 py-4 mx-auto">
-                <slot></slot>
-            </div>
-        </section>
-    </main>-->
     <div class="min-h-full">
+        <Head :title="header" />
         <nav class="bg-gray-800">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
@@ -23,7 +16,7 @@
                     </div>
                     <div class="hidden md:block">
                         <div class="ml-4 flex items-center md:ml-6">
-                            <button type="button" class="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                            <button type="button" class="hidden rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                 <span class="sr-only">View notifications</span>
                                 <!-- Heroicon name: outline/bell -->
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -97,7 +90,7 @@
                             <div class="text-base font-medium leading-none text-white">Tom Cook</div>
                             <div class="text-sm font-medium leading-none text-gray-400">tom@example.com</div>
                         </div>
-                        <button type="button" class="ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                        <button type="button" class="hidden ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                             <span class="sr-only">View notifications</span>
                             <!-- Heroicon name: outline/bell -->
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -131,14 +124,16 @@ export default {
         XIcon,
         MenuIcon
     },
+    props: {
+        header: String,
+    },
     data() {
         return {
             menu: false,
             profile: false,
-            header: null,
             routes: [
                 {
-                    'link': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id ? route('plan') : route('home'),
+                    'link': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id ? route('plan.index') : route('home'),
                     'text': 'Home',
                     'visible': true
                 },
@@ -170,6 +165,11 @@ export default {
                 {
                     'link': route('sections.index'),
                     'text': 'Sections',
+                    'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
+                },
+                {
+                    'link': route('sales'),
+                    'text': 'Sales',
                     'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
                 }
             ]
