@@ -95,6 +95,12 @@ class User extends Controller
                     'type' => 'password'
                 ],
                 [
+                    'name' => 'is_admin',
+                    'label' => 'Admin',
+                    'type' => 'checkbox',
+                    'value' => false
+                ],
+                [
                     'name' => 'active',
                     'label' => 'Active',
                     'type' => 'checkbox',
@@ -117,6 +123,7 @@ class User extends Controller
             'email' => ['required', 'email', 'max:50', 'unique:users'],
             'password' => ['required', 'min:4', 'max:32'],
             'active' => ['required', 'boolean'],
+            'is_admin' => ['required', 'boolean'],
             'organization_id' => ['nullable', 'exists:organizations,id']
         ]);
         $input["password"] = Hash::make($input["password"]);
@@ -181,6 +188,12 @@ class User extends Controller
                     'name' => 'password',
                     'label' => 'Password',
                     'type' => 'password'
+                ],
+                [
+                    'name' => 'is_admin',
+                    'label' => 'Admin',
+                    'type' => 'checkbox',
+                    'value' => $record->is_admin
                 ],
                 [
                     'name' => 'active',
