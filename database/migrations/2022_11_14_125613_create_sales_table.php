@@ -20,6 +20,7 @@ return new class extends Migration
             //$table->primary('id');
             $table->id();
             $table->uuid();
+            $table->string('access_code', 10)->nullable();
             $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('desk_id')->nullable()->constrained('desks')->onDelete('set null');

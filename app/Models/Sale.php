@@ -21,7 +21,8 @@ class Sale extends Model
         'organization_id',
         'user_id',
         'desk_id',
-        'status'
+        'status',
+        'access_code'
     ];
 
     /**
