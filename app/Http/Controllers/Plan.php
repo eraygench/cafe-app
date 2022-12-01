@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Nette\Utils\Random;
 
 class Plan extends Controller
 {
@@ -125,7 +126,9 @@ class Plan extends Controller
      */
     public function update(Request $request, Desk $record)
     {
-        if($request->has('details')) {
+        if($request->has('details') || ($request->has('access_code') && in_array($request->get('access_code'), [true, null]))) {
+            if($request->get('access_code') === true)
+                $request->merge(['access_code' => Random::generate(6, '0-9A-Z')]);
             $sale = $record->sales()->updateOrCreate(['id' => $request->get('id')], $request->except(['details']));
             collect($request->get('details'))->except('id')->each(function($detail) use ($sale) {
                 $current = $sale->details()->where('product_id', $detail['product_id'])->first();
@@ -134,6 +137,7 @@ class Plan extends Controller
                 else
                     $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except('id')->all());
             });
+            if(!$sale->access_code && $record->sale()->details()->count() == 0) $record->sale()->delete();
             broadcast(new \App\Events\Sale($record->id))->toOthers();
         }
         return Redirect::route('plan.index');

@@ -79,7 +79,7 @@
                              :class="{ '!pointer-events-none': !activeDesk }">
                             <div v-if="activeDesk" class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                                 <div
-                                    class="flex items-start justify-between border-b border-gray-200 py-6 px-4 sm:px-6">
+                                    class="flex items-center justify-between border-b border-gray-200 py-6 px-4 sm:px-6">
                                     <div v-if="addProductTab != null" class="mr-3 flex h-7 items-center">
                                         <button @click="prevAddProductTab" type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500">
                                             <span class="sr-only">Prev</span>
@@ -87,20 +87,36 @@
                                         </button>
                                     </div>
                                     <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">
-                                        {{ activeDesk.section.name }} {{ activeDesk.name }}</h2>
+                                        {{ activeDesk.section.name }} {{ activeDesk.name }}
+                                    </h2>
+                                    <Popper
+                                        trigger="hover"
+                                        :options="{
+                                          placement: 'bottom',
+                                          modifiers: { offset: { offset: '0,10px' } }
+                                        }">
+                                        <div class="popper">
+                                            <span v-if="activeDesk.sale.access_code">Code: <span v-text="activeDesk.sale.access_code" /></span>
+                                            <span v-else>Open One-Time Access</span>
+                                        </div>
+                                        <button slot="reference" v-if="addProductTab == null"
+                                                class="flex -m-2 p-2 text-gray-400 hover:text-gray-500"
+                                                @click="createSaleAccessCode">
+                                            <span class="sr-only">Close panel</span>
+                                            <KeyIcon/>
+                                        </button>
+                                    </Popper>
                                     <!--                                    <div v-if="addProductTab != null" class="ml-3 flex h-7 items-center">
                                                                             <button type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500">
                                                                                 <span class="sr-only">Next</span>
                                                                                 <ArrowRightIcon/>
                                                                             </button>
                                                                         </div>-->
-                                    <div class="ml-3 flex h-7 items-center">
-                                        <button type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500"
-                                                @click="closeDeskModal">
-                                            <span class="sr-only">Close panel</span>
-                                            <XIcon/>
-                                        </button>
-                                    </div>
+                                    <button class="flex -m-2 p-2 text-gray-400 hover:text-gray-500"
+                                            @click="closeDeskModal">
+                                        <span class="sr-only">Close panel</span>
+                                        <XIcon/>
+                                    </button>
                                 </div>
                                 <div class="flex-1 overflow-y-auto pt-4 pb-6 px-4 sm:px-6">
 
@@ -188,7 +204,8 @@
                                     </div>
                                     <div class="mt-6">
                                         <button @click="checkout"
-                                           class="flex items-center justify-center w-full rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">
+                                                :disabled="activeDesk.sale.details.length === 0"
+                                                class="flex items-center justify-center w-full rounded-md border border-transparent bg-indigo-600 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-100 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">
                                             Checkout
                                         </button>
                                     </div>
@@ -198,14 +215,14 @@
                                         <button
                                             v-if="addProductTab === 1"
                                             @click="saveDesk"
-                                            class="flex items-center justify-center w-full rounded-md border border-transparent bg-emerald-500 disabled:bg-emerald-700 disabled:cursor-not-allowed disabled:text-gray-300 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-600">
+                                            class="flex items-center justify-center w-full rounded-md border border-transparent bg-emerald-500 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-600">
                                             Save
                                         </button>
                                         <button
                                             v-else
                                             @click="addProductTab = addProductTab === 0 ? 1 : 0"
                                             :disabled="addProductTab === 0 && cart.length === 0"
-                                            class="flex items-center justify-center w-full rounded-md border border-transparent bg-emerald-500 disabled:bg-emerald-700 disabled:cursor-not-allowed disabled:text-gray-300 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-600">
+                                            class="flex items-center justify-center w-full rounded-md border border-transparent bg-emerald-500 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-100 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-600">
                                             <span v-if="addProductTab === 0">Open Cart</span>
                                             <span v-else-if="addProductTab == null">Add Product</span>
                                         </button>
@@ -222,7 +239,9 @@
 
 <script>
 import {Inertia} from "@inertiajs/inertia";
-import {TrashIcon, XIcon, ArrowLeftIcon, ArrowRightIcon, MinusSmIcon, PlusSmIcon} from '@vue-hero-icons/outline'
+import Popper from 'vue-popperjs';
+import {TrashIcon, XIcon, ArrowLeftIcon, ArrowRightIcon, MinusSmIcon, PlusSmIcon, KeyIcon} from '@vue-hero-icons/outline'
+import 'vue-popperjs/dist/vue-popper.css';
 
 export default {
     props: {
@@ -237,7 +256,9 @@ export default {
         ArrowLeftIcon,
         ArrowRightIcon,
         MinusSmIcon,
-        PlusSmIcon
+        PlusSmIcon,
+        KeyIcon,
+        Popper
     },
     data() {
         return ({
@@ -264,6 +285,24 @@ export default {
             }
             Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
                 .whisper('DeskOpen', {deskId: this.activeDesk.id, name: this.$page.props.auth.user.name})
+        },
+        async createSaleAccessCode() {
+            if ((await this.$swal({
+                title: this.activeDesk.sale.access_code ? "Do you want to turn off one-time access?" : "Do you want to open one-time access?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+            })).isConfirmed) {
+                await Inertia.put(route('plan.update', this.activeDesk.id), {
+                    ...this.activeDesk.sale,
+                    details: [],
+                    access_code: this.activeDesk.sale.access_code ? null : true
+                }, {preserveState: false, replace: true, preserveScroll: true})
+                Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
+                    .whisper('DeskClose', {deskId: this.activeDesk.id})
+            }
         },
         checkout() {
             Inertia.put(route('plan.update', this.activeDesk.id), {
