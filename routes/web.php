@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -33,18 +34,60 @@ Route::get('/', function () {
 });
 
 Route::get('/menu/{organization_uuid}', function ($organization_uuid) {
-    $organization = \App\Models\Organization::query()->where('uuid', $organization_uuid)->with('categories')->firstOrFail();
-    return Inertia::render('Menu', [
-        'organization' => $organization
-    ]);
-});
+    $organization = \App\Models\Organization::query()->where('active', true)->where('uuid', $organization_uuid)->with('categories.products')->firstOrFail();
+    $categories = $organization
+        ->categories()
+        ->where('active', true)
+        ->whereHas('products', function ($query) {
+            $query
+                ->where('active', true)
+                ->where('organization_id', Auth::user()->organization_id);
+        })
+        ->get();
+    $products = $organization
+        ->products()
+        ->where('active', true)
+        ->whereNotNull('category_id')
+        ->whereHas('category', function ($query) {
+            $query
+                ->where('active', true)
+                ->where('organization_id', Auth::user()->organization_id);
+        })
+        ->get();
+    $sale = request('ac') ? $organization->sales()->where('status', false)->where('access_code', request('ac'))->first() : null;
+    if(request('ac') && !$sale)
+        return \Illuminate\Support\Facades\Redirect::route('menu', $organization_uuid)->with(['message' => 'Order not fonud', 'icon' => 'error']);
 
-Route::get('/menu/{organization_uuid}/{category_uuid}', function ($organization_uuid, $category_uuid) {
-    $organization = \App\Models\Organization::query()->where('uuid', $organization_uuid)->firstOrFail();
-    $category = \App\Models\Category::query()->where('organization_id', $organization->id)->where('uuid', $category_uuid)->with('products')->firstOrFail();
     return Inertia::render('Menu', [
-        'category' => $category
+        'organization' => $organization,
+        'categories' => $categories,
+        'products' => $products,
+        'sale' => $sale?->uuid
     ]);
+})->name('menu');
+
+Route::put('/menu/{organization_uuid}', function ($organization_uuid) {
+    $organization = \App\Models\Organization::query()->where('active', true)->where('uuid', $organization_uuid)->with('categories.products')->first();
+    if(!$organization)
+        return \Illuminate\Support\Facades\Redirect::route('menu', $organization_uuid);
+
+    $sale = $organization->sales()->where('status', false)->where('uuid', request('sale'))->whereNotNull('access_code')->first();
+    if(!$sale)
+        return \Illuminate\Support\Facades\Redirect::route('menu', $organization_uuid)->with(['message' => 'Order not found', 'icon' => 'error']);
+
+    if(request()->has('details')) {
+        collect(request()->get('details'))->each(function($detail) use ($sale) {
+            $current = $sale->details()->where('product_id', $detail['product_id'])->first();
+            if($current)
+                $current->update(['quantity' => $current->quantity + $detail['quantity']]);
+            else
+                $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except('id')->all());
+        });
+        $sale->update(['access_code' => null]);
+        broadcast(new \App\Events\Sale($sale->desk->id))->toOthers();
+    }
+
+    return \Illuminate\Support\Facades\Redirect::route('menu', $organization_uuid)->with(['message' => 'Successfully placed order', 'icon' => 'success']);
 });
 
 Route::middleware('auth')->prefix('admin')->group(function () {
@@ -72,6 +115,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('sales', function () {
         return Inertia::render('Admin/Custom/Index', [
             'data' => \App\Models\Sale::query()
+                ->where('status', true)
                 ->when(request('search'), function($query, $search) {
                     $query->where('id', 'like', "%{$search}%");
                 })
