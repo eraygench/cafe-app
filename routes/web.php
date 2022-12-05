@@ -39,9 +39,7 @@ Route::get('/menu/{organization_uuid}', function ($organization_uuid) {
         ->categories()
         ->where('active', true)
         ->whereHas('products', function ($query) {
-            $query
-                ->where('active', true)
-                ->where('organization_id', Auth::user()->organization_id);
+            $query->where('active', true);
         })
         ->get();
     $products = $organization
@@ -49,9 +47,7 @@ Route::get('/menu/{organization_uuid}', function ($organization_uuid) {
         ->where('active', true)
         ->whereNotNull('category_id')
         ->whereHas('category', function ($query) {
-            $query
-                ->where('active', true)
-                ->where('organization_id', Auth::user()->organization_id);
+            $query->where('active', true);
         })
         ->get();
     $sale = request('ac') ? $organization->sales()->where('status', false)->where('access_code', request('ac'))->first() : null;
@@ -81,7 +77,7 @@ Route::put('/menu/{organization_uuid}', function ($organization_uuid) {
             if($current)
                 $current->update(['quantity' => $current->quantity + $detail['quantity']]);
             else
-                $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except('id')->all());
+                $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except(['id'])->all());
         });
         $sale->update(['access_code' => null]);
         broadcast(new \App\Events\Sale($sale->desk->id))->toOthers();
