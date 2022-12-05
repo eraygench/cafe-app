@@ -56,15 +56,21 @@
                 From: "opacity-100"
                 To: "opacity-0"
             -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity ease-in-out duration-500 opacity-0"
-                 :class="{ 'opacity-100': activeDesk, 'select-none pointer-events-none': !activeDesk }"
-                 @click="closeDeskModal"/>
+            <Transition mode="in-out"
+                        enter-class="ease-in-out opacity-0 duration-500"
+                        enter-to-class="opacity-100 duration-500"
+                        leave-class="ease-in-out opacity-100 duration-500"
+                        leave-to-class="opacity-0 duration-500">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75"
+                     v-if="deskDialog"
+                     @click="closeDeskModal"/>
+            </Transition>
 
             <div class="fixed inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute inset-0 overflow-hidden">
                     <div
                         class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 transform transition translate-x-full ease-in-out duration-500 sm:duration-700"
-                        :class="{ 'translate-x-0': activeDesk }">
+                        :class="{ 'translate-x-0': deskDialog }">
                         <!--
                           Slide-over panel, show/hide based on slide-over state.
 
@@ -75,161 +81,166 @@
                             From: "translate-x-0"
                             To: "translate-x-full"
                         -->
-                        <div class="pointer-events-auto w-screen max-w-md"
-                             :class="{ '!pointer-events-none': !activeDesk }">
-                            <div v-if="activeDesk" class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
-                                <div
-                                    class="flex items-center justify-between border-b border-gray-200 py-6 px-4 sm:px-6">
-                                    <div v-if="addProductTab != null" class="mr-3 flex h-7 items-center">
-                                        <button @click="prevAddProductTab" type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500">
-                                            <span class="sr-only">Prev</span>
-                                            <ArrowLeftIcon/>
-                                        </button>
-                                    </div>
-                                    <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">
-                                        {{ activeDesk.section.name }} {{ activeDesk.name }}
-                                    </h2>
-                                    <Popper
-                                        trigger="hover"
-                                        :options="{
+                        <Transition mode="in-out"
+                                    enter-class="transform transition ease-in-out translate-x-full duration-500 sm:duration-700"
+                                    enter-to-class="translate-x-0 duration-500"
+                                    leave-class="transform transition ease-in-out translate-x-0 duration-500 sm:duration-700"
+                                    leave-to-class="translate-x-full duration-500">
+                            <div class="pointer-events-auto w-screen max-w-md"
+                                 :class="{ '!pointer-events-none': !deskDialog }">
+                                <div v-if="activeDesk" class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                                    <div class="flex items-center justify-between border-b border-gray-200 py-6 px-4 sm:px-6">
+                                        <div v-if="addProductTab != null" class="mr-3 flex h-7 items-center">
+                                            <button @click="prevAddProductTab" type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500">
+                                                <span class="sr-only">Prev</span>
+                                                <ArrowLeftIcon/>
+                                            </button>
+                                        </div>
+                                        <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">
+                                            {{ activeDesk.section.name }} {{ activeDesk.name }}
+                                        </h2>
+                                        <Popper
+                                            trigger="hover"
+                                            :options="{
                                           placement: 'bottom',
                                           modifiers: { offset: { offset: '0,10px' } }
                                         }">
-                                        <div class="popper">
-                                            <span v-if="activeDesk.sale.access_code">Code: <span v-text="activeDesk.sale.access_code" /></span>
-                                            <span v-else>Open One-Time Access</span>
-                                        </div>
-                                        <button slot="reference" v-if="addProductTab == null"
-                                                class="flex -m-2 p-2 text-gray-400 hover:text-gray-500"
-                                                @click="createSaleAccessCode">
+                                            <div class="popper">
+                                                <span v-if="activeDesk.sale.access_code">Code: <span v-text="activeDesk.sale.access_code" /></span>
+                                                <span v-else>Open One-Time Access</span>
+                                            </div>
+                                            <button slot="reference" v-if="addProductTab == null"
+                                                    class="flex -m-2 p-2 text-gray-400 hover:text-gray-500"
+                                                    @click="createSaleAccessCode">
+                                                <span class="sr-only">Close panel</span>
+                                                <KeyIcon/>
+                                            </button>
+                                        </Popper>
+                                        <!--                                    <div v-if="addProductTab != null" class="ml-3 flex h-7 items-center">
+                                                                                <button type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500">
+                                                                                    <span class="sr-only">Next</span>
+                                                                                    <ArrowRightIcon/>
+                                                                                </button>
+                                                                            </div>-->
+                                        <button class="flex -m-2 p-2 text-gray-400 hover:text-gray-500"
+                                                @click="closeDeskModal">
                                             <span class="sr-only">Close panel</span>
-                                            <KeyIcon/>
+                                            <XIcon/>
                                         </button>
-                                    </Popper>
-                                    <!--                                    <div v-if="addProductTab != null" class="ml-3 flex h-7 items-center">
-                                                                            <button type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500">
-                                                                                <span class="sr-only">Next</span>
-                                                                                <ArrowRightIcon/>
-                                                                            </button>
-                                                                        </div>-->
-                                    <button class="flex -m-2 p-2 text-gray-400 hover:text-gray-500"
-                                            @click="closeDeskModal">
-                                        <span class="sr-only">Close panel</span>
-                                        <XIcon/>
-                                    </button>
-                                </div>
-                                <div class="flex-1 overflow-y-auto pt-4 pb-6 px-4 sm:px-6">
-
-                                    <div v-if="addProductTab == null">
-                                        <div class="flow-root">
-
-                                            <ul role="list" class="flex flex-col divide-y divide-gray-200 gap-2">
-                                                <li v-for="item in activeDesk.sale.details" :key="item.id"
-                                                    class="flex pt-2">
-                                                    <div
-                                                        class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200"
-                                                        v-if="item.product.image">
-                                                        <img
-                                                            src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg"
-                                                            class="h-full w-full object-cover object-center"/>
-                                                    </div>
-
-                                                    <div class="flex flex-1 flex-col">
-                                                        <div>
-                                                            <div class="flex justify-between text-base font-medium text-gray-900">
-                                                                <h3 class="line-clamp-2 break-all">{{ item.product.name }}</h3>
-                                                                <p class="ml-4">${{ item.quantity * item.price }}</p>
-                                                            </div>
-                                                            <!--                                                            <p class="mt-1 text-sm text-gray-500">Salmon</p>-->
-                                                        </div>
-                                                        <div class="flex flex-1 items-center justify-between text-sm">
-                                                            <p class="text-gray-500">Qty {{ item.quantity }}</p>
-
-                                                            <div class="flex">
-                                                                <button type="button"
-                                                                        class="font-medium text-indigo-600 hover:text-indigo-500 p-1"
-                                                                        @click="deleteRow(item)">Remove
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </li>
-
-                                            </ul>
-                                        </div>
                                     </div>
-                                    <div v-else-if="addProductTab === 0" class="select-none">
-                                        <ul class="flex items-center flex-nowrap overflow-x-auto pb-2 snap-x">
-                                            <li v-for="category in categories" :key="category.id"
-                                                class="cursor-pointer py-2 px-4 text-gray-500 border-b-4 whitespace-nowrap snap-center"
-                                                :class="{ 'text-green-500 border-green-500': addProductCategory === category.id }"
-                                                @click="addProductCategory = category.id"
-                                                v-text="category.name"/>
-                                        </ul>
-                                        <div class="grid grid-cols-2 gap-4 mt-2">
-                                            <button class="bg-gray-400 h-28 rounded relative text-white px-2"
-                                                    @click="addProduct(product)"
-                                                    :class="{ '!bg-emerald-400': cart.find(item => item.product_id === product.id) }"
-                                                    v-for="product in products.filter(d => d.category_id === addProductCategory)">
+                                    <div class="flex-1 overflow-y-auto pt-4 pb-6 px-4 sm:px-6">
+
+                                        <div v-if="addProductTab == null">
+                                            <div class="flow-root">
+
+                                                <ul role="list" class="flex flex-col divide-y divide-gray-200 gap-2">
+                                                    <li v-for="item in activeDesk.sale.details" :key="item.id"
+                                                        class="flex pt-2">
+                                                        <div
+                                                            class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200"
+                                                            v-if="item.product.image">
+                                                            <img
+                                                                src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg"
+                                                                class="h-full w-full object-cover object-center"/>
+                                                        </div>
+
+                                                        <div class="flex flex-1 flex-col">
+                                                            <div>
+                                                                <div class="flex justify-between text-base font-medium text-gray-900">
+                                                                    <h3 class="line-clamp-2 break-all">{{ item.product.name }}</h3>
+                                                                    <p class="ml-4">${{ item.quantity * item.price }}</p>
+                                                                </div>
+                                                                <!--                                                            <p class="mt-1 text-sm text-gray-500">Salmon</p>-->
+                                                            </div>
+                                                            <div class="flex flex-1 items-center justify-between text-sm">
+                                                                <p class="text-gray-500">Qty {{ item.quantity }}</p>
+
+                                                                <div class="flex">
+                                                                    <button type="button"
+                                                                            class="font-medium text-indigo-600 hover:text-indigo-500 p-1"
+                                                                            @click="deleteRow(item)">Remove
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div v-else-if="addProductTab === 0" class="select-none">
+                                            <ul class="flex items-center flex-nowrap overflow-x-auto pb-2 snap-x">
+                                                <li v-for="category in categories" :key="category.id"
+                                                    class="cursor-pointer py-2 px-4 text-gray-500 border-b-4 whitespace-nowrap snap-center"
+                                                    :class="{ 'text-green-500 border-green-500': addProductCategory === category.id }"
+                                                    @click="addProductCategory = category.id"
+                                                    v-text="category.name"/>
+                                            </ul>
+                                            <div class="grid grid-cols-2 gap-4 mt-2">
+                                                <button class="bg-gray-400 h-28 rounded relative text-white px-2"
+                                                        @click="addProduct(product)"
+                                                        :class="{ '!bg-emerald-400': cart.find(item => item.product_id === product.id) }"
+                                                        v-for="product in products.filter(d => d.category_id === addProductCategory)">
                                                 <span v-if="cart.find(item => item.product_id === product.id)"
                                                       class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-green-500 text-center p-1 rounded-full text-sm leading-none decoration-0">
                                                     {{ cart.find(item => item.product_id === product.id).quantity }}
                                                 </span>
-                                                <span class="line-clamp-2 break-all">{{ product.name }}</span>
-                                                <span class="absolute left-1 bottom-1 text-xs">{{product.price }}$</span>
-                                            </button>
+                                                    <span class="line-clamp-2 break-all">{{ product.name }}</span>
+                                                    <span class="absolute left-1 bottom-1 text-xs">{{product.price }}$</span>
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div v-else>
-                                        <div class="flex flex-col select-none gap-2">
-                                            <div v-for="item in cart" class="flex items-center justify-between gap-2">
-                                                <span class="flex flex-1 line-clamp-2 break-all">{{ item.product_name }}</span>
-                                                <span class="border border-gray-400 rounded flex gap-1">
+                                        <div v-else>
+                                            <div class="flex flex-col select-none gap-2">
+                                                <div v-for="item in cart" class="flex items-center justify-between gap-2">
+                                                    <span class="flex flex-1 line-clamp-2 break-all">{{ item.product_name }}</span>
+                                                    <span class="border border-gray-400 rounded flex gap-1">
                                                     <button v-if="item.quantity > 1" class="py-2 px-2 text-red-400" @click="setItemQuantity(item.id, 0)"><TrashIcon /></button>
                                                     <button class="py-2 px-2" @click="setItemQuantity(item.id, '-')" :class="{ 'text-red-400': item.quantity === 1 }"><Component :is="item.quantity === 1 ? 'TrashIcon' : 'MinusSmIcon'" /></button>
                                                     <span class="py-2 px-2 text-sm flex items-center justify-center w-10">{{ item.quantity }}</span>
                                                     <button class="py-2 px-2" @click="setItemQuantity(item.id, '+')"><PlusSmIcon /></button>
                                                 </span>
-                                                <span class="w-14 text-right">{{ item.quantity * item.price }}$</span>
+                                                    <span class="w-14 text-right">{{ item.quantity * item.price }}$</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="border-t border-gray-200 py-6 px-4 sm:px-6"
-                                     v-if="activeDesk.sale.id && addProductTab == null">
-                                    <div class="flex justify-between text-base font-medium text-gray-900">
-                                        <p>Total</p>
-                                        <p>${{ activeDesk.sale.total }}</p>
+                                    <div class="border-t border-gray-200 py-6 px-4 sm:px-6"
+                                         v-if="activeDesk.sale.id && addProductTab == null">
+                                        <div class="flex justify-between text-base font-medium text-gray-900">
+                                            <p>Total</p>
+                                            <p>${{ activeDesk.sale.total }}</p>
+                                        </div>
+                                        <div class="mt-6">
+                                            <button @click="checkout"
+                                                    :disabled="activeDesk.sale.details.length === 0"
+                                                    class="flex items-center justify-center w-full rounded-md border border-transparent bg-indigo-600 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-100 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">
+                                                Checkout
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="mt-6">
-                                        <button @click="checkout"
-                                                :disabled="activeDesk.sale.details.length === 0"
-                                                class="flex items-center justify-center w-full rounded-md border border-transparent bg-indigo-600 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-100 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">
-                                            Checkout
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="border-t border-gray-200 py-6 px-4 sm:px-6">
-                                    <div>
-                                        <button
-                                            v-if="addProductTab === 1"
-                                            @click="saveDesk"
-                                            class="flex items-center justify-center w-full rounded-md border border-transparent bg-emerald-500 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-600">
-                                            Save
-                                        </button>
-                                        <button
-                                            v-else
-                                            @click="addProductTab = addProductTab === 0 ? 1 : 0"
-                                            :disabled="addProductTab === 0 && cart.length === 0"
-                                            class="flex items-center justify-center w-full rounded-md border border-transparent bg-emerald-500 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-100 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-600">
-                                            <span v-if="addProductTab === 0">Open Cart</span>
-                                            <span v-else-if="addProductTab == null">Add Product</span>
-                                        </button>
+                                    <div class="border-t border-gray-200 py-6 px-4 sm:px-6">
+                                        <div>
+                                            <button
+                                                v-if="addProductTab === 1"
+                                                @click="saveDesk"
+                                                class="flex items-center justify-center w-full rounded-md border border-transparent bg-emerald-500 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-600">
+                                                Save
+                                            </button>
+                                            <button
+                                                v-else
+                                                @click="addProductTab = addProductTab === 0 ? 1 : 0"
+                                                :disabled="addProductTab === 0 && cart.length === 0"
+                                                class="flex items-center justify-center w-full rounded-md border border-transparent bg-emerald-500 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray-100 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-emerald-600">
+                                                <span v-if="addProductTab === 0">Open Cart</span>
+                                                <span v-else-if="addProductTab == null">Add Product</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </Transition>
                     </div>
                 </div>
             </div>
@@ -264,6 +275,7 @@ export default {
         return ({
             activeTab: this.sections?.[0].id,
             activeDesk: null,
+            deskDialog: false,
             desks: this._desks.map(desk => {
                 if (desk.sale)
                     desk.sale.hour = new Date(desk.sale.created_at).toTimeString().substring(0, 5)
@@ -283,6 +295,7 @@ export default {
                     details: []
                 })
             }
+            this.deskDialog = true
             Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
                 .whisper('DeskOpen', {deskId: this.activeDesk.id, name: this.$page.props.auth.user.name})
         },
@@ -323,9 +336,10 @@ export default {
                 Echo.private(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
                     .whisper('DeskClose', {deskId: this.activeDesk.id})
                 this.addProductTab = null
-                this.activeDesk = null
+                this.deskDialog = false
                 this.cart = []
                 this.addProductCategory = this.categories.length ? this.categories[0].id : null
+                setTimeout(() => this.activeDesk = null, 500)
             }
         },
         async saveDesk() {
