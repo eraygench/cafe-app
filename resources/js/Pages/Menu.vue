@@ -1,80 +1,99 @@
 <template>
-    <div class="flex justify-center min-h-screen w-full relative">
-        <div class="max-w-xl mx-auto w-full md:max-w-2xl">
-            <div class="text-2xl">{{ organization.name }}</div>
-            <button @click="requestDesk">New Order</button>
-            <hr class="my-2"/>
-            <div class="flex gap-3">
-                <button v-for="(category, index) in categories"
-                        :key="index"
-                        :class="{ 'bg-blue-400': activeCategory && category.id === activeCategory.id }"
-                        class="bg-gray-400 py-2 px-3 text-white"
-                        @click="activeCategory = category">
-                    {{ category.name }}
-                </button>
-            </div>
-            <hr class="my-2"/>
-            <div class="flex gap-3">
-                <button v-for="(product, index) in products.filter(p => activeCategory && p.category_id === activeCategory.id)"
-                        :key="index"
-                        class="bg-gray-400 py-2 px-3 text-white"
-                        @click="addProduct(product)">
-                    {{ product.name }} {{ product.price }}$
-                </button>
-            </div>
-
-            <div class="relative z-10">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity ease-in-out duration-500 opacity-0"
-                     :class="{ 'opacity-100': bottomBar, 'select-none pointer-events-none': !bottomBar }"
-                     @click="bottomBar = !bottomBar"/>
-                <div :class="{ 'top-10 bottom-0': bottomBar }"
-                     class="fixed bottom-0 transition-all flex flex-col select-none bg-gray-200 border w-full max-w-xl md:max-w-2xl rounded-t-xl">
-                    <div v-if="!bottomBar" class="w-full p-4 bg-gray-300 rounded-t-xl">
-                        <div v-if="!sale" @click="bottomBar = !bottomBar">
-                            New Order
-                        </div>
-                        <div v-else @click="bottomBar = !bottomBar">
-                            Cart
-                        </div>
+    <main class="min-h-full">
+        <div class="flex justify-center min-h-screen w-full relative">
+            <div class="max-w-xl mx-auto w-full md:max-w-2xl">
+                <div class="overflow-auto max-h-screen pb-16 p-2 select-none">
+                    <div class="text-2xl">{{ organization.name }}</div>
+                    <hr class="my-2"/>
+                    <ul class="flex items-center flex-nowrap overflow-x-auto pb-2 snap-x">
+                        <li v-for="category in categories" :key="category.id"
+                            class="cursor-pointer py-2 px-4 text-gray-500 border-b-4 whitespace-nowrap snap-center"
+                            :class="{ 'text-green-500 border-green-500': activeCategory === category.id }"
+                            @click="activeCategory = category.id"
+                            v-text="category.name"/>
+                    </ul>
+                    <div class="grid grid-cols-2 gap-4 mt-2">
+                        <button class="bg-gray-400 h-28 rounded relative text-white px-2"
+                                @click="addProduct(product)"
+                                :class="{ '!bg-emerald-400': cart.find(item => item.product_id === product.id) }"
+                                v-for="product in products.filter(d => d.category_id === activeCategory)">
+                            <span v-if="cart.find(item => item.product_id === product.id)"
+                                  class="absolute top-1 right-1 bg-white text-center text-emerald-400 p-1 rounded-full text-sm leading-none decoration-0">
+                                {{ cart.find(item => item.product_id === product.id).quantity }}
+                            </span>
+                            <span class="line-clamp-2 break-all">{{ product.name }}</span>
+                            <span class="absolute left-1 bottom-1 text-xs">{{product.price }}$</span>
+                        </button>
                     </div>
-                    <div v-if="bottomBar" class="p-4 h-full">
-                        <div class="p-4 bg-gray-300 flex items-center justify-between -m-4 mb-4 rounded-t-xl group"
+                </div>
+                <div>
+                    <Transition mode="in-out"
+                                enter-class="ease-in-out opacity-0 duration-500"
+                                enter-to-class="opacity-100 duration-500"
+                                leave-class="ease-in-out opacity-100 duration-500"
+                                leave-to-class="opacity-0 duration-500">
+                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75"
+                             v-if="bottomBar"
+                             @click="bottomBar = !bottomBar"/>
+                    </Transition>
+                    <div :class="{ 'top-10 bottom-0': bottomBar }"
+                         class="fixed bottom-0 flex flex-col select-none bg-gray-200 border w-full max-w-xl md:max-w-2xl rounded-t-xl select-none">
+                        <div v-if="!bottomBar"
+                             class="w-full p-4 bg-gray-300 rounded-t-xl"
                              @click="bottomBar = !bottomBar">
-                            <span>Close</span>
-                            <button class="flex -m-2 p-2 text-gray-400 group-hover:text-gray-500">
-                                <span class="sr-only">Close panel</span>
-                                <XIcon/>
-                            </button>
-                        </div>
-                        <div v-if="sale">
-                            <div><button @click="save" :disabled="cart.length === 0">Save</button></div>
-                            <div>
-                                <div v-for="(item, index) in cart" :key="index">
-                                    <span>{{ item.product_name }}</span>
-                                    <span>{{ item.quantity }}</span>
-                                    <span>{{ item.quantity * item.price }}</span>
-                                    <button @click="setItemQuantity(item, 0)">Remove</button>
-                                </div>
+                            <div v-if="!sale">
+                                New Order
+                            </div>
+                            <div v-else>
+                                Cart
                             </div>
                         </div>
-                        <div v-else>
-                            <input type="text" placeholder="Code" v-model="code">
-                            <button @click="requestDesk">Find</button>
+                        <div v-if="bottomBar" class="p-4 h-full">
+                            <div class="p-4 bg-gray-300 flex items-center justify-between -m-4 mb-4 rounded-t-xl group"
+                                 @click="bottomBar = !bottomBar">
+                                <span>Close</span>
+                                <button class="flex -m-2 p-2 text-gray-400 group-hover:text-gray-500">
+                                    <span class="sr-only">Close panel</span>
+                                    <XIcon/>
+                                </button>
+                            </div>
+                            <div v-if="sale">
+                                <div><button @click="save" :disabled="cart.length === 0">Save</button></div>
+                                <div class="flex flex-col select-none gap-2">
+                                    <div v-for="item in cart" class="flex items-center justify-between gap-2">
+                                        <span class="flex flex-1 line-clamp-2 break-all">{{ item.product_name }}</span>
+                                        <span class="border border-gray-400 rounded flex gap-1">
+                                        <button v-if="item.quantity > 1" class="py-2 px-2 text-red-400" @click="setItemQuantity(item.id, 0)"><TrashIcon /></button>
+                                        <button class="py-2 px-2" @click="setItemQuantity(item.id, '-')" :class="{ 'text-red-400': item.quantity === 1 }"><Component :is="item.quantity === 1 ? 'TrashIcon' : 'MinusSmIcon'" /></button>
+                                        <span class="py-2 px-2 text-sm flex items-center justify-center w-10">{{ item.quantity }}</span>
+                                        <button class="py-2 px-2" @click="setItemQuantity(item.id, '+')"><PlusSmIcon /></button>
+                                    </span>
+                                        <span class="w-14 text-right">{{ item.quantity * item.price }}$</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else>
+                                <input type="text" placeholder="Code" v-model="code">
+                                <button @click="requestDesk">Find</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </template>
 
 <script>
 import {Inertia} from "@inertiajs/inertia";
-import {XIcon} from '@vue-hero-icons/outline'
+import {XIcon, TrashIcon, MinusSmIcon, PlusSmIcon} from '@vue-hero-icons/outline'
 export default {
     layout: null,
     components: {
-        XIcon
+        XIcon,
+        TrashIcon,
+        MinusSmIcon,
+        PlusSmIcon
     },
     props: {
         organization: Object,
@@ -120,8 +139,7 @@ export default {
             }, {preserveState: true, replace: false, preserveScroll: true})
         },
         addProduct(product) {
-            console.log(product)
-            if(!this.sale) return
+            if (!this.sale) return
             const detail = this.cart.find(item => item.product_id === product.id)
             if (detail)
                 detail.quantity++
@@ -141,14 +159,14 @@ export default {
                 else {
                     this.cart.splice(this.cart.findIndex(item => item.id === id), 1)
                     if (this.cart.length === 0)
-                        this.addProductTab = 0
+                        this.bottomBar = !this.bottomBar
                 }
             else if (operation === "+")
                 this.cart.find(item => item.id === id).quantity++
             else if (operation === 0) {
                 this.cart.splice(this.cart.findIndex(item => item.id === id), 1)
                 if (this.cart.length === 0)
-                    this.addProductTab = 0
+                    this.bottomBar = !this.bottomBar
             }
         },
         uuidv4() {
