@@ -95,7 +95,7 @@
 
 <script>
 import { Inertia } from "@inertiajs/inertia";
-import Pagination from "../../../Shared/Pagination";
+import Pagination from "@/Shared/Pagination";
 import debounce from "lodash/debounce";
 export default {
     components: {Pagination},
