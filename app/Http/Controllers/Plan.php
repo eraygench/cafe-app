@@ -22,7 +22,7 @@ class Plan extends Controller
      */
     public function index()
     {
-        return Inertia::render("Plan", [
+        return Inertia::render("Admin/Plan", [
             'sections' => Section::query()
                 ->where('organization_id', Auth::user()->organization_id)
                 ->where('active', true)
@@ -130,12 +130,12 @@ class Plan extends Controller
             if($request->get('access_code') === true)
                 $request->merge(['access_code' => Random::generate(6, '0-9A-Z')]);
             $sale = $record->sales()->updateOrCreate(['id' => $request->get('id')], $request->except(['details']));
-            collect($request->get('details'))->except('id')->each(function($detail) use ($sale) {
+            collect($request->get('details'))->except(['id'])->each(function($detail) use ($sale) {
                 $current = $sale->details()->where('product_id', $detail['product_id'])->first();
                 if($current)
                     $current->update(['quantity' => $current->quantity + $detail['quantity']]);
                 else
-                    $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except('id')->all());
+                    $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except(['id'])->all());
             });
             if(!$sale->access_code && $record->sale()->details()->count() == 0) $record->sale()->delete();
             broadcast(new \App\Events\Sale($record->id))->toOthers();
