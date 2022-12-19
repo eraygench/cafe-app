@@ -1,5 +1,6 @@
 <?php
 
+use App\Broadcasting\OrderChannel;
 use App\Broadcasting\SaleChannel;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -19,3 +20,5 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('SaleChannel.{id}', SaleChannel::class);
+
+Broadcast::channel('OrderChannel.{id}', OrderChannel::class);
