@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -80,7 +79,7 @@ Route::put('/menu/{organization_uuid}', function ($organization_uuid) {
                 $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except(['id'])->all());
         });
         $sale->update(['access_code' => null]);
-        broadcast(new \App\Events\Sale($sale->desk->id))->toOthers();
+        broadcast(new \App\Events\NewSale($sale->desk->id))->toOthers();
     }
 
     return \Illuminate\Support\Facades\Redirect::route('menu', $organization_uuid)->with(['message' => 'Successfully placed order', 'icon' => 'success']);
