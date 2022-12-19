@@ -428,7 +428,7 @@ export default {
     },
     mounted() {
         Echo.channel(`SaleChannel.${this.$page.props.auth.user.organization_id}`)
-            .listen('Sale', function (event) {
+            .listen('NewSale', function (event) {
                 if (!!event.deskId) {
                     const desk = this.desks.find(desk => desk.id === event.deskId)
                     if (desk) {
