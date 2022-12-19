@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\OrderJob;
 use App\Models\Category;
 use App\Models\Desk;
 use App\Models\Product;
@@ -129,7 +130,9 @@ class Plan extends Controller
         if($request->has('details') || ($request->has('access_code') && in_array($request->get('access_code'), [true, null]))) {
             if($request->get('access_code') === true)
                 $request->merge(['access_code' => Random::generate(6, '0-9A-Z')]);
+
             $sale = $record->sales()->updateOrCreate(['id' => $request->get('id')], $request->except(['details']));
+
             collect($request->get('details'))->except(['id'])->each(function($detail) use ($sale) {
                 $current = $sale->details()->where('product_id', $detail['product_id'])->first();
                 if($current)
@@ -137,8 +140,14 @@ class Plan extends Controller
                 else
                     $sale->details()->updateOrCreate(['product_id' => $detail['product_id']], collect($detail)->except(['id'])->all());
             });
-            if(!$sale->access_code && $record->sale()->details()->count() == 0) $record->sale()->delete();
-            broadcast(new \App\Events\Sale($record->id))->toOthers();
+
+            if(!$sale->access_code && $record->sale()->details()->count() == 0)
+                $record->sale()->delete();
+
+            broadcast(new \App\Events\NewSale($record->id))->toOthers();
+
+            if($request->has('details'))
+                OrderJob::dispatch($record->id, $request->get('details'));
         }
         return Redirect::route('plan.index');
     }
@@ -154,7 +163,7 @@ class Plan extends Controller
     public function destroy(Request $request, Desk $record, int $detail_id)
     {
         $record->sale()->details()->firstWhere('id', $detail_id)->delete() && $record->sale()->details()->count() == 0 && $record->sale()->delete();
-        broadcast(new \App\Events\Sale($record->id));
+        broadcast(new \App\Events\NewSale($record->id));
         return Redirect::route('plan.index');
     }
 }
