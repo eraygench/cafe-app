@@ -137,11 +137,21 @@ export default {
                     'text': 'Home',
                     'visible': true
                 },
+                {
+                    'link': route('sales'),
+                    'text': 'Sales',
+                    'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
+                },
                 /*{
                     'link': route('sales'),
                     'text': 'Sales',
                     'visible': !this.$page.props.auth.user.is_admin && !this.$page.props.auth.user.organization_id
                 },*/
+                {
+                    'link': route('orders'),
+                    'text': 'Orders',
+                    'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
+                },
                 {
                     'link': route('users.index'),
                     'text': 'Users',
@@ -165,11 +175,6 @@ export default {
                 {
                     'link': route('sections.index'),
                     'text': 'Sections',
-                    'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
-                },
-                {
-                    'link': route('sales'),
-                    'text': 'Sales',
                     'visible': !this.$page.props.auth.user.is_admin && this.$page.props.auth.user.organization_id
                 }
             ]
