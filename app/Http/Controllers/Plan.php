@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewOrder;
+use App\Events\NewSale;
 use App\Jobs\OrderJob;
 use App\Models\Category;
 use App\Models\Desk;
@@ -144,10 +146,10 @@ class Plan extends Controller
             if(!$sale->access_code && $record->sale()->details()->count() == 0)
                 $record->sale()->delete();
 
-            broadcast(new \App\Events\NewSale($record->id))->toOthers();
+            NewSale::broadcast($record->id)->toOthers();
 
             if($request->has('details'))
-                OrderJob::dispatch($record->id, $request->get('details'));
+                OrderJob::dispatch($record->load('section'), $request->get('details'));
         }
         return Redirect::route('plan.index');
     }
@@ -163,7 +165,7 @@ class Plan extends Controller
     public function destroy(Request $request, Desk $record, int $detail_id)
     {
         $record->sale()->details()->firstWhere('id', $detail_id)->delete() && $record->sale()->details()->count() == 0 && $record->sale()->delete();
-        broadcast(new \App\Events\NewSale($record->id));
+        NewSale::broadcast($record->id);
         return Redirect::route('plan.index');
     }
 }
