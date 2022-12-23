@@ -111,6 +111,9 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         return Inertia::render('Admin/Custom/Index', [
             'data' => \App\Models\Sale::query()
                 ->where('status', true)
+                ->when(\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->organization_id,
+                    fn ($query) => $query->where('organization_id', \Illuminate\Support\Facades\Auth::user()->organization_id),
+                    fn ($query) => $query->where('user_id', \Illuminate\Support\Facades\Auth::user()->id))
                 ->when(request('search'), function($query, $search) {
                     $query->where('id', 'like', "%{$search}%");
                 })
@@ -136,5 +139,9 @@ Route::middleware('auth')->prefix('admin')->group(function () {
             ]
         ]);
     })->name('sales');
+
+    Route::get('orders', function () {
+        return Inertia::render('Admin/Orders');
+    })->name('orders');
 
 });
