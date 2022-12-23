@@ -15,16 +15,14 @@ class NewOrder implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    private $desk;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(public $deskId, public $details)
+    public function __construct(public $desk, public $details)
     {
-        $this->desk = Desk::query()->find($deskId);
     }
 
     /**
