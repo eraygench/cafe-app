@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\NewOrder;
 use App\Models\Desk;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -19,7 +20,7 @@ class OrderJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(public $deskId, public $details)
+    public function __construct(public $desk, public $details)
     {
     }
 
@@ -30,6 +31,6 @@ class OrderJob implements ShouldQueue
      */
     public function handle()
     {
-        broadcast(new \App\Events\NewOrder($this->deskId, $this->details));
+        NewOrder::broadcast($this->desk, $this->details);
     }
 }
